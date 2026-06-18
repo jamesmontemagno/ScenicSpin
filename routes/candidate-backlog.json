@@ -137,9 +137,9 @@
     },
     {
       "id": "candidate-this-bike-trail-is-like-a-secret-paradise-hoz6m1",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "This Bike Trail Is Like a Secret Paradise",
       "sourceUrl": "https://www.youtube.com/watch?v=hOz6M1Y8JgE",
       "embedUrl": "https://www.youtube-nocookie.com/embed/hOz6M1Y8JgE",
@@ -174,13 +174,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:4K virtual cycling workout scenic ride no music",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "secret-paradise-bike-trail-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-30-minute-indoor-cycling-workout-spain-with-telemetry-jkp_xk",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "30 minute Indoor Cycling Workout Spain with Telemetry Display 4K Video",
       "sourceUrl": "https://www.youtube.com/watch?v=jkP_xkqWjJg",
       "embedUrl": "https://www.youtube-nocookie.com/embed/jkP_xkqWjJg",
@@ -215,7 +217,9 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:4K virtual cycling workout scenic ride no music",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "spain-telemetry-indoor-cycling-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-rallarvegen-norways-most-beautiful-ride-indoor-cycling-zluevd",
@@ -391,9 +395,9 @@
     },
     {
       "id": "candidate-ride-through-bavaria-s-most-beautiful-landscapes-virtu-i251rk",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "Ride Through Bavaria’s Most Beautiful Landscapes! 🌿🏔️ | Virtual Cycling Workout | 4K",
       "sourceUrl": "https://www.youtube.com/watch?v=i251rkpezQk",
       "embedUrl": "https://www.youtube-nocookie.com/embed/i251rkpezQk",
@@ -428,13 +432,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:4K virtual cycling workout scenic ride no music",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "bavaria-beautiful-landscapes-virtual-cycling-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-scenic-4k-ride-in-italy-castles-vineyards-lake-garda-n-pyfy8t",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "Scenic 4K Ride in Italy | Castles, Vineyards & Lake Garda | No Music, Just Nature",
       "sourceUrl": "https://www.youtube.com/watch?v=Pyfy8trRybA",
       "embedUrl": "https://www.youtube-nocookie.com/embed/Pyfy8trRybA",
@@ -470,13 +476,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:virtual bike ride 4K no music scenic cycling",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "lake-garda-castles-vineyards-italy-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-1-hour-virtual-indoor-cycling-dolomites-italy-mph-spee-hhnyiy",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "1 hour Virtual Indoor Cycling Dolomites Italy mph Speed Graphics 4K Video",
       "sourceUrl": "https://www.youtube.com/watch?v=hHnyiYjVTHA",
       "embedUrl": "https://www.youtube-nocookie.com/embed/hHnyiYjVTHA",
@@ -511,13 +519,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:4K virtual cycling workout scenic ride no music",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "dolomites-speed-graphics-indoor-cycling-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-45-minute-fat-burning-indoor-cycling-workout-alps-sout-jown4w",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "45 minute Fat Burning Indoor Cycling Workout Alps South Tyrol Lake Tour Garmin 4K",
       "sourceUrl": "https://www.youtube.com/watch?v=JOWN4WmuItM",
       "embedUrl": "https://www.youtube-nocookie.com/embed/JOWN4WmuItM",
@@ -552,13 +562,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:4K virtual cycling workout scenic ride no music",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "south-tyrol-alps-lake-tour-garmin-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-sella-ronda-passo-sella-and-passo-gardena-italy-indoor-e_be4k",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "Sella Ronda (Passo Sella and Passo Gardena - Italy) - Indoor Cycling Training",
       "sourceUrl": "https://www.youtube.com/watch?v=e_bE4KVpoDA",
       "embedUrl": "https://www.youtube-nocookie.com/embed/e_bE4KVpoDA",
@@ -593,13 +605,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Bike the World Indoor Cycling Training scenic ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "sella-ronda-passo-sella-gardena-indoor-cycling",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-lac-dor-don-from-st-lary-soulan-indoor-cycling-trainin-ohh9fz",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "Lac d'Orédon from St-Lary-Soulan - Indoor Cycling Training",
       "sourceUrl": "https://www.youtube.com/watch?v=OhH9fZEzcKU",
       "embedUrl": "https://www.youtube-nocookie.com/embed/OhH9fZEzcKU",
@@ -634,7 +648,9 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Bike the World Indoor Cycling Training scenic ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "lac-doredon-st-lary-soulan-france-indoor-cycling",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-around-lake-of-sainte-croix-france-indoor-cycling-trai-3ocbpg",
@@ -681,9 +697,9 @@
     },
     {
       "id": "candidate-grossglockner-high-alpine-road-edelweissspitze-from-fu-6tpur5",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "Grossglockner High Alpine Road - Edelweissspitze from Fusch (Austria) - Indoor Cycling Training",
       "sourceUrl": "https://www.youtube.com/watch?v=6Tpur5_oGQ0",
       "embedUrl": "https://www.youtube-nocookie.com/embed/6Tpur5_oGQ0",
@@ -718,7 +734,9 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Bike the World Indoor Cycling Training scenic ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "grossglockner-edelweissspitze-austria-indoor-cycling",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-the-lake-loop-stage-1-voted-britains-best-ride-indoor-_wa-gt",
@@ -765,9 +783,9 @@
     },
     {
       "id": "candidate-col-des-tentes-via-gavarnie-from-g-dre-indoor-cycling-m0bibo",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "Col des Tentes via Gavarnie from Gèdre - Indoor Cycling Training",
       "sourceUrl": "https://www.youtube.com/watch?v=M0bIbOYKITM",
       "embedUrl": "https://www.youtube-nocookie.com/embed/M0bIbOYKITM",
@@ -802,13 +820,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Bike the World Indoor Cycling Training scenic ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "col-des-tentes-gavarnie-france-indoor-cycling",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-norwegian-river-ride-indoor-cycling-training-dgt8tz",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "Norwegian River Ride - Indoor Cycling Training",
       "sourceUrl": "https://www.youtube.com/watch?v=Dgt8tZSoQKw",
       "embedUrl": "https://www.youtube-nocookie.com/embed/Dgt8tZSoQKw",
@@ -843,13 +863,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Bike the World Indoor Cycling Training scenic ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "norwegian-river-ride-indoor-cycling",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-the-settle-circular-stage-1-riding-the-heart-of-yorksh-gci5xc",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "The Settle Circular - Stage 1: Riding the Heart of Yorkshire - Indoor Cycling Training",
       "sourceUrl": "https://www.youtube.com/watch?v=GCI5xclQ4Co",
       "embedUrl": "https://www.youtube-nocookie.com/embed/GCI5xclQ4Co",
@@ -884,7 +906,9 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Bike the World Indoor Cycling Training scenic ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "settle-circular-yorkshire-stage-1-indoor-cycling",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-the-world-heritage-windmills-of-kinderdijk-netherlands-y1dus4",
@@ -931,9 +955,9 @@
     },
     {
       "id": "candidate-monte-grappa-italys-mont-ventoux-indoor-cycling-traini-uyefe3",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "Monte Grappa - Italy's Mont Ventoux - Indoor Cycling Training",
       "sourceUrl": "https://www.youtube.com/watch?v=uyEfe3wo4eI",
       "embedUrl": "https://www.youtube-nocookie.com/embed/uyEfe3wo4eI",
@@ -968,7 +992,9 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Bike the World Indoor Cycling Training scenic ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "monte-grappa-italy-indoor-cycling",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-87-4k-maroon-bells-2021-spectacular-fall-color-bike-ri-pq16tu",
@@ -1058,9 +1084,9 @@
     },
     {
       "id": "candidate-89-4k-million-dollar-highway-group-bike-ride-to-silver-dxqxuo",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "[89] 4K Million Dollar Highway group bike ride to Silverton Colorado",
       "sourceUrl": "https://www.youtube.com/watch?v=dxqxUOQqu6U",
       "embedUrl": "https://www.youtube-nocookie.com/embed/dxqxUOQqu6U",
@@ -1095,13 +1121,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Jerry's Scenic Indoor Cycling 4K ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "million-dollar-highway-silverton-colorado-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-115-4k-indoor-cycling-little-park-road-with-gradient-o-ksg5sv",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "[115] 4K Indoor Cycling.  Little Park Road with gradient overlays",
       "sourceUrl": "https://www.youtube.com/watch?v=KSG5SVaU6hk",
       "embedUrl": "https://www.youtube-nocookie.com/embed/KSG5SVaU6hk",
@@ -1136,7 +1164,9 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Jerry's Scenic Indoor Cycling 4K ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "little-park-road-colorado-gradient-overlays-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-81-4k-colorado-national-monument-bike-ride-4k-xjtk4w",
@@ -1183,9 +1213,9 @@
     },
     {
       "id": "candidate-80-4k-crystal-river-bike-path-northbound-to-glenwood-s-zjdveu",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "[80] 4K Crystal River bike path northbound to Glenwood Springs 4K",
       "sourceUrl": "https://www.youtube.com/watch?v=ZJDVeuvR0m0",
       "embedUrl": "https://www.youtube-nocookie.com/embed/ZJDVeuvR0m0",
@@ -1220,13 +1250,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Jerry's Scenic Indoor Cycling 4K ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "crystal-river-glenwood-springs-bike-path-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-122-4k-debeque-roan-creek-ride-with-overlays-vh5vaj",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "[122] 4K DeBeque Roan Creek ride with Overlays",
       "sourceUrl": "https://www.youtube.com/watch?v=vH5VaJYd0qo",
       "embedUrl": "https://www.youtube-nocookie.com/embed/vH5VaJYd0qo",
@@ -1261,7 +1293,9 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:Jerry's Scenic Indoor Cycling 4K ride",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "debeque-roan-creek-colorado-overlays-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-cycling-karwendel-nature-park-isar-river-source-to-mit-ebaksk",
@@ -1309,9 +1343,9 @@
     },
     {
       "id": "candidate-virtual-bike-ride-through-autumn-munich-peaceful-isar-hbqlsg",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "Virtual Bike Ride Through Autumn Munich | Peaceful Isar River Path in Real-Time 4K",
       "sourceUrl": "https://www.youtube.com/watch?v=HbQlsgwCaIw",
       "embedUrl": "https://www.youtube-nocookie.com/embed/HbQlsgwCaIw",
@@ -1347,13 +1381,15 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:virtual bike ride 4K no music scenic cycling",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "munich-isar-river-autumn-4k",
+      "promotedToCatalogAt": "2026-06-17"
     },
     {
       "id": "candidate-4k-ultra-hd-california-scenic-bike-ride-with-music-col-usuja3",
-      "status": "candidate",
-      "curationTier": "backlog",
-      "promotionReadiness": "needs-review",
+      "status": "featured",
+      "curationTier": "featured",
+      "promotionReadiness": "promoted-to-production",
       "title": "4K (Ultra HD) California Scenic Bike Ride with Music - Coleman Valley Road, California - 5 Hours",
       "sourceUrl": "https://www.youtube.com/watch?v=USUJa3N3TOM",
       "embedUrl": "https://www.youtube-nocookie.com/embed/USUJa3N3TOM",
@@ -1388,7 +1424,9 @@
       },
       "license": "Platform-hosted public stream; reuse governed by YouTube terms. Do not download, proxy, mirror, or rehost. Specific license not independently verified.",
       "discoveredVia": "ytsearch:virtual bike ride 4K no music scenic cycling",
-      "curationNotes": "Candidate backlog entry only. Do not surface in production catalog until reviewed and promoted."
+      "curationNotes": "Promoted into routes/catalog.json during aggressive backlog burn-down toward a 40-ride visible catalog. Keep source/legal/embed checks current; do not download or rehost.",
+      "productionCatalogId": "coleman-valley-road-california-5-hour-4k",
+      "promotedToCatalogAt": "2026-06-17"
     }
   ]
 }
