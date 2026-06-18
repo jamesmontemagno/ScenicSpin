@@ -14,3 +14,5 @@ Agent Scribe initialized and ready for work.
 ## Learnings
 
 Initial setup complete.
+
+- 2026-06-18: Merged pending decision inbox into `decisions.md`, including the parallelism/underused-members directive; wrote session and orchestration logs for the curation badge polish batch. No commit/push performed.

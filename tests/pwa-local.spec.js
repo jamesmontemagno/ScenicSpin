@@ -189,12 +189,16 @@ test('favorites persist locally and favorites-only filter works', async ({ page 
 
   const favoritesControl = page.locator('label.toggle-field', { has: page.locator('#favoritesFilter') });
   await expect(favoritesControl).toContainText('Favorites only');
-  const [controlBox, checkboxBox] = await Promise.all([
+  const [controlBox, checkboxBox, durationFilterBox] = await Promise.all([
     favoritesControl.boundingBox(),
-    page.locator('#favoritesFilter').boundingBox()
+    page.locator('#favoritesFilter').boundingBox(),
+    page.locator('#durationFilter').boundingBox()
   ]);
   expect(controlBox).not.toBeNull();
   expect(checkboxBox).not.toBeNull();
+  expect(durationFilterBox).not.toBeNull();
+  expect(Math.abs(controlBox.height - durationFilterBox.height)).toBeLessThanOrEqual(1);
+  expect(checkboxBox.height).toBeLessThan(controlBox.height);
   expect(checkboxBox.x).toBeGreaterThanOrEqual(controlBox.x);
   expect(checkboxBox.y).toBeGreaterThanOrEqual(controlBox.y);
   expect(checkboxBox.x + checkboxBox.width).toBeLessThanOrEqual(controlBox.x + controlBox.width);

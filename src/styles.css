@@ -302,6 +302,7 @@ h3 {
 }
 
 .controls-panel .toggle-field {
+  align-self: end;
   min-height: 3.15rem;
 }
 
@@ -310,6 +311,9 @@ h3 {
 }
 
 .controls-panel .toggle-field input {
+  width: 1.25rem;
+  height: 1.25rem;
+  min-height: 1.25rem;
   margin: 0;
 }
 

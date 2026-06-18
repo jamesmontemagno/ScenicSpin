@@ -33,6 +33,25 @@ function Fill-RoundedRectangle($g, $brush, $x, $y, $w, $h, $r) {
   $path.Dispose()
 }
 
+# Draws text optically centered inside a pill/chiclet rectangle. GDI+ DrawString
+# placed at a raw point ignores font ascent/descent, which pushes glyphs low and
+# leaves the descenders touching the bottom edge. Measuring the real glyph ink
+# box (via a GraphicsPath) and centering that box keeps the label balanced
+# regardless of the font's internal leading or descender reservations.
+function Draw-CenteredText($g, $text, $font, $brush, $x, $y, $w, $h) {
+  $fmt = [System.Drawing.StringFormat]::GenericTypographic.Clone()
+  $fmt.FormatFlags = $fmt.FormatFlags -bor [System.Drawing.StringFormatFlags]::NoWrap
+  $path = New-Object System.Drawing.Drawing2D.GraphicsPath
+  $origin = New-Object System.Drawing.PointF 0, 0
+  $path.AddString($text, $font.FontFamily, [int]$font.Style, $font.Size, $origin, $fmt)
+  $bounds = $path.GetBounds()
+  $path.Dispose()
+  $textX = $x + ($w - $bounds.Width) / 2 - $bounds.X
+  $textY = $y + ($h - $bounds.Height) / 2 - $bounds.Y
+  $g.DrawString($text, $font, $brush, $textX, $textY, $fmt)
+  $fmt.Dispose()
+}
+
 $background = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
   (New-Object System.Drawing.Point 0, 0),
   (New-Object System.Drawing.Point $width, $height),
@@ -123,11 +142,56 @@ $eyebrowFont = New-Object System.Drawing.Font $fontFamily, 27, ([System.Drawing.
 $headlineFont = New-Object System.Drawing.Font $fontFamily, 52, ([System.Drawing.FontStyle]::Bold), ([System.Drawing.GraphicsUnit]::Pixel)
 $urlFont = New-Object System.Drawing.Font $fontFamily, 26, ([System.Drawing.FontStyle]::Bold), ([System.Drawing.GraphicsUnit]::Pixel)
 
-Fill-RoundedRectangle $graphics (New-Brush '#37e1a4') 80 76 76 76 20
-$arrowPen = New-Pen '#061218' 8
-$graphics.DrawLine($arrowPen, 104, 126, 132, 98)
-$graphics.DrawLine($arrowPen, 116, 98, 132, 98)
-$graphics.DrawLine($arrowPen, 132, 98, 132, 114)
+# Brand mark: render the site favicon artwork (a bike climbing a scenic road)
+# instead of a hand-drawn arrow so the OG preview matches the app icon. The
+# coordinates mirror icons/favicon.svg (64x64 viewBox) scaled into the 76px badge
+# at (80, 76); the badge uses the app-icon gradient fill so the mark stays legible
+# against the dark background.
+$iconX = 80
+$iconY = 76
+$iconSize = 76
+$iconScale = $iconSize / 64
+
+function Get-IconPoint($px, $py) {
+  $ix = $iconX + $px * $iconScale
+  $iy = $iconY + $py * $iconScale
+  return New-Object System.Drawing.PointF $ix, $iy
+}
+
+function New-IconPen($hex, $strokeWidth) {
+  $pen = New-Object System.Drawing.Pen ([System.Drawing.ColorTranslator]::FromHtml($hex), [single]($strokeWidth * $iconScale))
+  $pen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
+  $pen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
+  $pen.LineJoin = [System.Drawing.Drawing2D.LineJoin]::Round
+  return $pen
+}
+
+$iconBackground = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
+  (New-Object System.Drawing.Point $iconX, $iconY),
+  (New-Object System.Drawing.Point ($iconX + $iconSize), ($iconY + $iconSize)),
+  ([System.Drawing.ColorTranslator]::FromHtml('#14333d')),
+  ([System.Drawing.ColorTranslator]::FromHtml('#061318'))
+)
+Fill-RoundedRectangle $graphics $iconBackground $iconX $iconY $iconSize $iconSize ([int](16 * $iconScale))
+
+$iconRoad = New-Object System.Drawing.Drawing2D.GraphicsPath
+$iconRoad.AddBezier((Get-IconPoint 12 42), (Get-IconPoint 22 28), (Get-IconPoint 28 24), (Get-IconPoint 35 28))
+$iconRoad.AddBezier((Get-IconPoint 35 28), (Get-IconPoint 41 31), (Get-IconPoint 44 29), (Get-IconPoint 52 18))
+$graphics.DrawPath((New-IconPen '#38e8a4' 6), $iconRoad)
+$iconRoad.Dispose()
+
+$iconWheelPen = New-IconPen '#68d8ff' 4
+$iconWheelSize = [single](14 * $iconScale)
+$iconLeftWheel = Get-IconPoint 13 37
+$iconRightWheel = Get-IconPoint 39 37
+$graphics.DrawEllipse($iconWheelPen, $iconLeftWheel.X, $iconLeftWheel.Y, $iconWheelSize, $iconWheelSize)
+$graphics.DrawEllipse($iconWheelPen, $iconRightWheel.X, $iconRightWheel.Y, $iconWheelSize, $iconWheelSize)
+
+$iconFrame = New-Object System.Drawing.Drawing2D.GraphicsPath
+$iconFrame.AddLine((Get-IconPoint 29 44), (Get-IconPoint 36 44))
+$iconFrame.AddLine((Get-IconPoint 36 44), (Get-IconPoint 31 32))
+$graphics.DrawPath((New-IconPen '#ffb86b' 4), $iconFrame)
+$iconFrame.Dispose()
 
 $graphics.DrawString('PedalScape', $brandFont, (New-Brush '#eaf6fb'), 178, 92)
 $graphics.DrawString('Indoor bike + scenic escape', $eyebrowFont, (New-Brush '#39f0b2'), 82, 198)
@@ -136,8 +200,8 @@ for ($i = 0; $i -lt $headlineLines.Count; $i++) {
   $graphics.DrawString($headlineLines[$i], $headlineFont, (New-Brush '#eaf6fb'), 88, (286 + ($i * 57)))
 }
 Fill-RoundedRectangle $graphics (New-Brush '#37e1a4') 80 548 278 46 23
-$graphics.DrawString('pedalscape.com', $urlFont, (New-Brush '#061218'), 112, 556)
-$graphics.DrawString('pedalscape.com', $urlFont, (New-Brush '#061218'), 832, 460)
+Draw-CenteredText $graphics 'pedalscape.com' $urlFont (New-Brush '#061218') 80 548 278 46
+Draw-CenteredText $graphics 'pedalscape.com' $urlFont (New-Brush '#061218') 806 452 230 44
 
 $graphics.Dispose()
 $bitmap.Save($outputPath, [System.Drawing.Imaging.ImageFormat]::Png)

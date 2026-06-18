@@ -44,3 +44,5 @@ Use this as the first-pass manual validation suite once Trinity/Tank land the MV
 - Slow image/video loads show placeholders/loading states and never block navigation.
 - Network/video failure surfaces a retry or alternate action.
 - No copyrighted Peloton content is embedded unless explicitly licensed/allowed.
+
+- 2026-06-18: Cleaned promoted backlog metadata in `routes/candidate-backlog.json` so promoted items no longer imply pending human review.
