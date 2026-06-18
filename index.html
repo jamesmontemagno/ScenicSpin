@@ -4,6 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#061318">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Scenic Rides">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     <title>Scenic Ride Catalog</title>
     <link rel="stylesheet" href="src/styles.css">
   </head>
@@ -71,6 +77,25 @@
               <option value="all">Any intensity</option>
             </select>
           </label>
+          <label class="toggle-field">
+            <input id="favoritesFilter" type="checkbox">
+            <span>Favorites only</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="local-panel" aria-labelledby="localTitle">
+        <div>
+          <p class="eyebrow">Saved on this device</p>
+          <h2 id="localTitle">Your rides</h2>
+        </div>
+        <div class="local-summary">
+          <strong id="favoriteCount">0 favorites</strong>
+          <span>Favorites, recent rides, and filter preferences stay local to this browser.</span>
+        </div>
+        <div>
+          <p class="local-label">Recent routes</p>
+          <div id="recentRoutes" class="recent-routes" aria-live="polite"></div>
         </div>
       </section>
 
@@ -112,6 +137,7 @@
             <dl class="metadata-list" id="selectedMetadata"></dl>
             <div class="ride-actions">
               <button id="startRideButton" class="primary-button" type="button" disabled>Start ride</button>
+              <button id="favoriteRouteButton" class="secondary-button" type="button" disabled>Save favorite</button>
               <a id="sourceLink" class="secondary-button disabled-link" href="#" target="_blank" rel="noopener">Open source</a>
             </div>
           </aside>

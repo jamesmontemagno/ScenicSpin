@@ -2,16 +2,23 @@ let routes = [];
 
 const catalogUrl = 'routes/catalog.json';
 const selectedRouteStorageKey = 'scenicRideCatalog.selectedRouteId';
+const favoriteRoutesStorageKey = 'scenicRideCatalog.favoriteRouteIds';
+const recentRoutesStorageKey = 'scenicRideCatalog.recentRouteIds';
+const filterPreferencesStorageKey = 'scenicRideCatalog.filterPreferences';
 const defaultRecommendationId = 'bavarian-countryside-90-minute-4k';
+const maxRecentRoutes = 5;
 
 const state = {
   selectedRoute: null,
   featuredRoute: null,
+  favoriteRouteIds: new Set(),
+  recentRouteIds: [],
   heroMode: 'recommended',
   query: '',
   duration: 'all',
   scenery: 'all',
   intensity: 'all',
+  favoritesOnly: false,
   catalogStatus: 'loading'
 };
 
@@ -26,6 +33,9 @@ const elements = {
   durationFilter: document.querySelector('#durationFilter'),
   sceneryFilter: document.querySelector('#sceneryFilter'),
   intensityFilter: document.querySelector('#intensityFilter'),
+  favoritesFilter: document.querySelector('#favoritesFilter'),
+  favoriteCount: document.querySelector('#favoriteCount'),
+  recentRoutes: document.querySelector('#recentRoutes'),
   resultCount: document.querySelector('#resultCount'),
   routeGrid: document.querySelector('#routeGrid'),
   playerShell: document.querySelector('#playerShell'),
@@ -33,6 +43,7 @@ const elements = {
   selectedDescription: document.querySelector('#selectedDescription'),
   selectedMetadata: document.querySelector('#selectedMetadata'),
   startRideButton: document.querySelector('#startRideButton'),
+  favoriteRouteButton: document.querySelector('#favoriteRouteButton'),
   fullscreenButton: document.querySelector('#fullscreenButton'),
   sourceLink: document.querySelector('#sourceLink')
 };
@@ -104,6 +115,82 @@ function saveSelectedRouteId(routeId) {
   }
 }
 
+function readLocalJson(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeLocalJson(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Local app features gracefully degrade when storage is disabled.
+  }
+}
+
+function loadLocalState() {
+  const favoriteRouteIds = readLocalJson(favoriteRoutesStorageKey, []);
+  const recentRouteIds = readLocalJson(recentRoutesStorageKey, []);
+  state.favoriteRouteIds = new Set(Array.isArray(favoriteRouteIds) ? favoriteRouteIds : []);
+  state.recentRouteIds = Array.isArray(recentRouteIds) ? recentRouteIds : [];
+}
+
+function isFavorite(routeId) {
+  return state.favoriteRouteIds.has(routeId);
+}
+
+function saveFavorites() {
+  writeLocalJson(favoriteRoutesStorageKey, [...state.favoriteRouteIds]);
+}
+
+function saveRecentRoutes() {
+  writeLocalJson(recentRoutesStorageKey, state.recentRouteIds);
+}
+
+function addRecentRoute(routeId) {
+  state.recentRouteIds = [
+    routeId,
+    ...state.recentRouteIds.filter((id) => id !== routeId)
+  ].slice(0, maxRecentRoutes);
+  saveRecentRoutes();
+}
+
+function saveFilterPreferences() {
+  writeLocalJson(filterPreferencesStorageKey, {
+    query: state.query,
+    duration: state.duration,
+    scenery: state.scenery,
+    intensity: state.intensity,
+    favoritesOnly: state.favoritesOnly
+  });
+}
+
+function applyFilterPreferences() {
+  const preferences = readLocalJson(filterPreferencesStorageKey, {});
+  state.query = typeof preferences.query === 'string' ? preferences.query : '';
+  state.duration = preferences.duration || 'all';
+  state.scenery = preferences.scenery || 'all';
+  state.intensity = preferences.intensity || 'all';
+  state.favoritesOnly = Boolean(preferences.favoritesOnly);
+
+  elements.searchInput.value = state.query;
+  elements.durationFilter.value = state.duration;
+  elements.sceneryFilter.value = state.scenery;
+  elements.intensityFilter.value = state.intensity;
+  elements.favoritesFilter.checked = state.favoritesOnly;
+
+  if (elements.durationFilter.value !== state.duration) state.duration = 'all';
+  if (elements.sceneryFilter.value !== state.scenery) state.scenery = 'all';
+  if (elements.intensityFilter.value !== state.intensity) state.intensity = 'all';
+  elements.durationFilter.value = state.duration;
+  elements.sceneryFilter.value = state.scenery;
+  elements.intensityFilter.value = state.intensity;
+}
+
 function isYouTubeRoute(route) {
   return route.sourcePlatform === 'youtube' || /youtu\.?be|youtube(-nocookie)?\.com/.test(`${route.sourceUrl || ''} ${route.embedUrl || ''}`);
 }
@@ -136,6 +223,7 @@ function setControlsDisabled(disabled) {
     elements.durationFilter,
     elements.sceneryFilter,
     elements.intensityFilter,
+    elements.favoritesFilter,
     elements.fullscreenButton
   ].forEach((element) => {
     element.disabled = disabled;
@@ -197,8 +285,33 @@ function routeMatches(route) {
     haystack.includes(state.query) &&
     durationMatches(route) &&
     (state.scenery === 'all' || route.sceneryTags.includes(state.scenery)) &&
-    (state.intensity === 'all' || route.intensity === state.intensity)
+    (state.intensity === 'all' || route.intensity === state.intensity) &&
+    (!state.favoritesOnly || isFavorite(route.id))
   );
+}
+
+function renderLocalPanel() {
+  const favoriteCount = state.favoriteRouteIds.size;
+  elements.favoriteCount.textContent = `${favoriteCount} favorite${favoriteCount === 1 ? '' : 's'}`;
+  elements.recentRoutes.innerHTML = '';
+
+  const recentRoutes = state.recentRouteIds
+    .map((routeId) => routes.find((route) => route.id === routeId))
+    .filter(Boolean);
+
+  if (recentRoutes.length === 0) {
+    elements.recentRoutes.innerHTML = '<span class="local-empty">Select or start a ride to build recent routes.</span>';
+    return;
+  }
+
+  recentRoutes.forEach((route) => {
+    const button = document.createElement('button');
+    button.className = 'recent-route-button';
+    button.type = 'button';
+    button.textContent = route.title;
+    button.addEventListener('click', () => selectRoute(route.id, true));
+    elements.recentRoutes.append(button);
+  });
 }
 
 function renderStatus(message, detail = '') {
@@ -278,6 +391,7 @@ function setFeaturedRoute(route, mode = 'recommended') {
 
 function renderCatalog() {
   elements.routeGrid.innerHTML = '';
+  renderLocalPanel();
 
   if (state.catalogStatus === 'loading') {
     elements.resultCount.textContent = 'Loading…';
@@ -324,6 +438,9 @@ function renderCatalog() {
             : `<span aria-hidden="true">${escapeHtml(route.scenery)}</span>`
         }
         <span class="card-badge">${escapeHtml(route.videoQuality || 'Video')}</span>
+        <button class="favorite-card-button ${isFavorite(route.id) ? 'is-favorite' : ''}" type="button" aria-pressed="${isFavorite(route.id) ? 'true' : 'false'}" aria-label="${isFavorite(route.id) ? 'Remove favorite' : 'Save favorite'}: ${escapeHtml(route.title)}">
+          ${isFavorite(route.id) ? '★' : '☆'}
+        </button>
       </div>
       <div class="card-body">
         <p class="route-location">${escapeHtml(route.location)}</p>
@@ -343,6 +460,24 @@ function renderCatalog() {
         event.currentTarget.src = fallback;
       }
     });
+    const favoriteButton = card.querySelector('.favorite-card-button');
+    favoriteButton?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleFavorite(route.id);
+    });
+    favoriteButton?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleFavorite(route.id);
+      }
+    });
+    favoriteButton?.addEventListener('keyup', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    });
     card.addEventListener('click', () => selectRoute(route.id, true));
     card.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
@@ -360,6 +495,9 @@ function clearSelectedRoute(message = 'Choose a scenic ride card above. The play
   elements.selectedDescription.textContent = message;
   elements.selectedMetadata.innerHTML = '';
   elements.startRideButton.disabled = true;
+  elements.favoriteRouteButton.disabled = true;
+  elements.favoriteRouteButton.textContent = 'Save favorite';
+  elements.favoriteRouteButton.removeAttribute('aria-pressed');
   elements.sourceLink.href = '#';
   elements.sourceLink.classList.add('disabled-link');
   elements.sourceLink.removeAttribute('aria-label');
@@ -390,9 +528,24 @@ function renderSelectedRoute() {
     <div><dt>Video</dt><dd>${escapeHtml(route.videoQuality || 'Unknown')} · ${escapeHtml(route.audio || 'Audio varies')}</dd></div>
   `;
   elements.startRideButton.disabled = !route.embeddingAllowed;
+  elements.favoriteRouteButton.disabled = false;
+  elements.favoriteRouteButton.textContent = isFavorite(route.id) ? 'Favorited ★' : 'Save favorite ☆';
+  elements.favoriteRouteButton.setAttribute('aria-pressed', isFavorite(route.id) ? 'true' : 'false');
   elements.sourceLink.href = route.sourceUrl;
   elements.sourceLink.classList.remove('disabled-link');
   elements.sourceLink.setAttribute('aria-label', `Open source video for ${route.title}`);
+}
+
+function toggleFavorite(routeId) {
+  if (isFavorite(routeId)) {
+    state.favoriteRouteIds.delete(routeId);
+  } else {
+    state.favoriteRouteIds.add(routeId);
+  }
+
+  saveFavorites();
+  renderSelectedRoute();
+  renderCatalog();
 }
 
 function loadPlayer(route, autoplay = false) {
@@ -406,7 +559,7 @@ function loadPlayer(route, autoplay = false) {
   if (route.sourceType === 'youtube' && route.videoId) {
     const iframe = document.createElement('iframe');
     iframe.title = `${route.title} ride video`;
-    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
     iframe.allowFullscreen = true;
     iframe.src = `${route.embedUrl || `https://www.youtube-nocookie.com/embed/${route.videoId}`}?rel=0&modestbranding=1&playsinline=1${autoplay ? '&autoplay=1' : ''}`;
     elements.playerShell.append(iframe);
@@ -449,6 +602,7 @@ async function requestFullscreen() {
 function startRide() {
   if (!state.selectedRoute) return;
   saveSelectedRouteId(state.selectedRoute.id);
+  addRecentRoute(state.selectedRoute.id);
   setFeaturedRoute(state.selectedRoute, 'continue');
   loadPlayer(state.selectedRoute, true);
   requestFullscreen().catch(() => {
@@ -477,25 +631,38 @@ function bindEvents() {
 
   elements.searchInput.addEventListener('input', (event) => {
     state.query = event.target.value.trim().toLowerCase();
+    saveFilterPreferences();
     renderCatalog();
   });
 
   elements.durationFilter.addEventListener('change', (event) => {
     state.duration = event.target.value;
+    saveFilterPreferences();
     renderCatalog();
   });
 
   elements.sceneryFilter.addEventListener('change', (event) => {
     state.scenery = event.target.value;
+    saveFilterPreferences();
     renderCatalog();
   });
 
   elements.intensityFilter.addEventListener('change', (event) => {
     state.intensity = event.target.value;
+    saveFilterPreferences();
+    renderCatalog();
+  });
+
+  elements.favoritesFilter.addEventListener('change', (event) => {
+    state.favoritesOnly = event.target.checked;
+    saveFilterPreferences();
     renderCatalog();
   });
 
   elements.startRideButton.addEventListener('click', startRide);
+  elements.favoriteRouteButton.addEventListener('click', () => {
+    if (state.selectedRoute) toggleFavorite(state.selectedRoute.id);
+  });
   elements.fullscreenButton.addEventListener('click', () => {
     if (!state.selectedRoute && routes.length > 0) selectRoute(routes[0].id);
     if (!state.selectedRoute) return;
@@ -519,7 +686,12 @@ async function loadCatalog() {
     const catalog = await response.json();
     routes = Array.isArray(catalog.routes) ? catalog.routes.map(normalizeRoute) : [];
     state.catalogStatus = 'ready';
+    state.favoriteRouteIds = new Set([...state.favoriteRouteIds].filter((routeId) => routes.some((route) => route.id === routeId)));
+    state.recentRouteIds = state.recentRouteIds.filter((routeId) => routes.some((route) => route.id === routeId));
+    saveFavorites();
+    saveRecentRoutes();
     populateFilters();
+    applyFilterPreferences();
     setControlsDisabled(routes.length === 0);
     renderCatalog();
 
@@ -542,9 +714,21 @@ async function loadCatalog() {
   }
 }
 
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator) || window.location.protocol === 'file:') return;
+
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch((error) => {
+      console.warn('Service worker registration skipped.', error);
+    });
+  });
+}
+
 function init() {
+  loadLocalState();
   bindEvents();
   loadCatalog();
+  registerServiceWorker();
 }
 
 init();
