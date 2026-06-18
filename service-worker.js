@@ -1,10 +1,12 @@
-const cacheName = 'pedalscape-shell-v2';
+const cacheName = 'pedalscape-shell-v3';
 const shellAssets = [
   './',
   './index.html',
   './src/app.js',
   './src/styles.css',
   './manifest.webmanifest',
+  './routes/catalog.json',
+  './routes/candidate-backlog.json',
   './icons/favicon.svg',
   './icons/app-icon.svg',
   './icons/icon-192.png',
@@ -31,7 +33,6 @@ self.addEventListener('fetch', (event) => {
 
   if (
     requestUrl.origin !== self.location.origin ||
-    requestUrl.pathname.endsWith('/routes/catalog.json') ||
     event.request.method !== 'GET'
   ) {
     return;
@@ -40,12 +41,18 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        const copy = response.clone();
-        caches.open(cacheName).then((cache) => cache.put(event.request, copy));
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(cacheName).then((cache) => cache.put(event.request, copy));
+        }
         return response;
       })
       .catch(() =>
-        caches.match(event.request).then((cached) => cached || caches.match('./index.html'))
+        caches.match(event.request).then((cached) => {
+          if (cached) return cached;
+          if (event.request.mode === 'navigate') return caches.match('./index.html');
+          return Response.error();
+        })
       )
   );
 });

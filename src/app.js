@@ -8,6 +8,9 @@ const selectedRouteStorageKey = 'scenicRideCatalog.selectedRouteId';
 const favoriteRoutesStorageKey = 'scenicRideCatalog.favoriteRouteIds';
 const recentRoutesStorageKey = 'scenicRideCatalog.recentRouteIds';
 const filterPreferencesStorageKey = 'scenicRideCatalog.filterPreferences';
+const candidateReviewDecisionsStorageKey = 'PedalScape.reviewDecisions';
+const localBackupSchemaVersion = 1;
+const localBackupAppName = 'PedalScape';
 const localStorageKeys = [
   selectedRouteStorageKey,
   favoriteRoutesStorageKey,
@@ -16,6 +19,11 @@ const localStorageKeys = [
 ];
 const defaultRecommendationId = 'bavarian-countryside-90-minute-4k';
 const maxRecentRoutes = 5;
+const candidateDecisionLabels = {
+  promote: 'Promote/Yes',
+  reject: 'Reject/No',
+  defer: 'Defer/Maybe'
+};
 
 const state = {
   selectedRoute: null,
@@ -29,8 +37,11 @@ const state = {
   intensity: 'all',
   favoritesOnly: false,
   catalogStatus: 'loading',
-  candidateStatus: 'loading',
-  candidateCopyMessage: ''
+  candidateStatus: 'idle',
+  reviewMode: false,
+  candidateCopyMessage: '',
+  candidateReviewDecisions: {},
+  reviewDecisionStatus: ''
 };
 
 const elements = {
@@ -49,8 +60,12 @@ const elements = {
   recentRoutes: document.querySelector('#recentRoutes'),
   resultCount: document.querySelector('#resultCount'),
   routeGrid: document.querySelector('#routeGrid'),
+  candidateBacklog: document.querySelector('#candidateBacklog'),
   candidateCount: document.querySelector('#candidateCount'),
   candidateGrid: document.querySelector('#candidateGrid'),
+  exportReviewDecisionsButton: document.querySelector('#exportReviewDecisionsButton'),
+  reviewDecisionStatus: document.querySelector('#reviewDecisionStatus'),
+  reviewDecisionsOutput: document.querySelector('#reviewDecisionsOutput'),
   playerShell: document.querySelector('#playerShell'),
   selectedTitle: document.querySelector('#selectedTitle'),
   selectedDescription: document.querySelector('#selectedDescription'),
@@ -60,8 +75,12 @@ const elements = {
   fullscreenButton: document.querySelector('#fullscreenButton'),
   sourceLink: document.querySelector('#sourceLink'),
   installButton: document.querySelector('#installButton'),
+  exportDataButton: document.querySelector('#exportDataButton'),
+  copyDataButton: document.querySelector('#copyDataButton'),
+  importDataInput: document.querySelector('#importDataInput'),
   resetDataButton: document.querySelector('#resetDataButton'),
-  appStatus: document.querySelector('#appStatus')
+  appStatus: document.querySelector('#appStatus'),
+  backupJsonOutput: document.querySelector('#backupJsonOutput')
 };
 
 function titleCase(value) {
@@ -179,11 +198,42 @@ function writeLocalJson(key, value) {
   }
 }
 
+function normalizeCandidateReviewDecisions(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+
+  return Object.entries(value).reduce((decisions, [candidateId, review]) => {
+    if (typeof candidateId !== 'string' || !review || typeof review !== 'object' || Array.isArray(review)) {
+      return decisions;
+    }
+
+    const decision = Object.prototype.hasOwnProperty.call(candidateDecisionLabels, review.decision) ? review.decision : '';
+    const note = typeof review.note === 'string' ? review.note : '';
+    if (decision || note.trim()) decisions[candidateId] = { decision, note };
+    return decisions;
+  }, {});
+}
+
 function loadLocalState() {
   const favoriteRouteIds = readLocalJson(favoriteRoutesStorageKey, []);
   const recentRouteIds = readLocalJson(recentRoutesStorageKey, []);
   state.favoriteRouteIds = new Set(Array.isArray(favoriteRouteIds) ? favoriteRouteIds.filter((id) => typeof id === 'string') : []);
   state.recentRouteIds = Array.isArray(recentRouteIds) ? recentRouteIds.filter((id) => typeof id === 'string') : [];
+  state.candidateReviewDecisions = normalizeCandidateReviewDecisions(readLocalJson(candidateReviewDecisionsStorageKey, {}));
+}
+
+function routeExists(routeId) {
+  return routes.some((route) => route.id === routeId);
+}
+
+function cleanupLocalRouteIds() {
+  if (routes.length === 0) return;
+
+  state.favoriteRouteIds = new Set([...state.favoriteRouteIds].filter(routeExists));
+  state.recentRouteIds = state.recentRouteIds.filter(routeExists).slice(0, maxRecentRoutes);
+  const storedRouteId = readStoredRouteId();
+  if (storedRouteId && !routeExists(storedRouteId)) removeStoredRouteId();
+  saveFavorites();
+  saveRecentRoutes();
 }
 
 function isFavorite(routeId) {
@@ -216,6 +266,53 @@ function saveFilterPreferences() {
   });
 }
 
+function saveCandidateReviewDecisions() {
+  writeLocalJson(candidateReviewDecisionsStorageKey, state.candidateReviewDecisions);
+}
+
+function getCandidateReview(candidateId) {
+  return state.candidateReviewDecisions[candidateId] || { decision: '', note: '' };
+}
+
+function getCandidateReviewLabel(decision) {
+  return candidateDecisionLabels[decision] || 'Unreviewed';
+}
+
+function setCandidateReviewDecision(candidateId, decision) {
+  const currentReview = getCandidateReview(candidateId);
+  const nextDecision = currentReview.decision === decision ? '' : decision;
+  const nextReview = {
+    decision: nextDecision,
+    note: currentReview.note || ''
+  };
+
+  if (!nextReview.decision && !nextReview.note.trim()) {
+    delete state.candidateReviewDecisions[candidateId];
+  } else {
+    state.candidateReviewDecisions[candidateId] = nextReview;
+  }
+
+  state.reviewDecisionStatus = `${getCandidateReviewLabel(nextDecision)} saved locally. Export decisions to send them back to Copilot.`;
+  saveCandidateReviewDecisions();
+  renderCandidates();
+}
+
+function setCandidateReviewNote(candidateId, note) {
+  const currentReview = getCandidateReview(candidateId);
+  const nextReview = {
+    decision: currentReview.decision || '',
+    note
+  };
+
+  if (!nextReview.decision && !nextReview.note.trim()) {
+    delete state.candidateReviewDecisions[candidateId];
+  } else {
+    state.candidateReviewDecisions[candidateId] = nextReview;
+  }
+
+  saveCandidateReviewDecisions();
+}
+
 function applyFilterPreferences() {
   const preferences = readLocalJson(filterPreferencesStorageKey, {});
   state.query = typeof preferences.query === 'string' ? preferences.query : '';
@@ -236,6 +333,158 @@ function applyFilterPreferences() {
   elements.durationFilter.value = state.duration;
   elements.sceneryFilter.value = state.scenery;
   elements.intensityFilter.value = state.intensity;
+}
+
+function getLocalBackupData() {
+  return {
+    selectedRouteId: readStoredRouteId() || null,
+    favoriteRouteIds: [...state.favoriteRouteIds],
+    recentRouteIds: state.recentRouteIds,
+    filterPreferences: {
+      query: state.query,
+      duration: state.duration,
+      scenery: state.scenery,
+      intensity: state.intensity,
+      favoritesOnly: state.favoritesOnly
+    }
+  };
+}
+
+function buildLocalBackup() {
+  return {
+    app: localBackupAppName,
+    schemaVersion: localBackupSchemaVersion,
+    exportedAt: new Date().toISOString(),
+    localData: getLocalBackupData()
+  };
+}
+
+function normalizeStringArray(value, fieldName) {
+  if (!Array.isArray(value)) throw new Error(`${fieldName} must be an array.`);
+  const seen = new Set();
+
+  return value.filter((item) => {
+    if (typeof item !== 'string' || item.trim() === '') {
+      throw new Error(`${fieldName} must contain only route ID strings.`);
+    }
+    if (seen.has(item)) return false;
+    seen.add(item);
+    return true;
+  });
+}
+
+function normalizeFilterPreferences(value) {
+  if (value === undefined) return {};
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('filterPreferences must be an object.');
+  }
+
+  return {
+    query: typeof value.query === 'string' ? value.query.trim().toLowerCase() : '',
+    duration: typeof value.duration === 'string' ? value.duration : 'all',
+    scenery: typeof value.scenery === 'string' ? value.scenery : 'all',
+    intensity: typeof value.intensity === 'string' ? value.intensity : 'all',
+    favoritesOnly: Boolean(value.favoritesOnly)
+  };
+}
+
+function validateLocalBackup(backup) {
+  if (!backup || typeof backup !== 'object' || Array.isArray(backup)) {
+    throw new Error('Backup must be a JSON object.');
+  }
+  if (backup.app !== localBackupAppName) {
+    throw new Error('Backup is not for PedalScape.');
+  }
+  if (backup.schemaVersion !== localBackupSchemaVersion) {
+    throw new Error(`Unsupported backup version: ${backup.schemaVersion ?? 'missing'}.`);
+  }
+  if (!backup.localData || typeof backup.localData !== 'object' || Array.isArray(backup.localData)) {
+    throw new Error('Backup is missing localData.');
+  }
+
+  const data = backup.localData;
+  const selectedRouteId = data.selectedRouteId == null ? null : data.selectedRouteId;
+  if (selectedRouteId !== null && typeof selectedRouteId !== 'string') {
+    throw new Error('selectedRouteId must be a string or null.');
+  }
+
+  return {
+    selectedRouteId,
+    favoriteRouteIds: normalizeStringArray(data.favoriteRouteIds ?? [], 'favoriteRouteIds'),
+    recentRouteIds: normalizeStringArray(data.recentRouteIds ?? [], 'recentRouteIds').slice(0, maxRecentRoutes),
+    filterPreferences: normalizeFilterPreferences(data.filterPreferences)
+  };
+}
+
+function downloadLocalBackup() {
+  const blob = new Blob([`${JSON.stringify(buildLocalBackup(), null, 2)}\n`], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  const dateStamp = new Date().toISOString().slice(0, 10);
+  anchor.href = url;
+  anchor.download = `pedalscape-local-backup-${dateStamp}.json`;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  setAppStatus('Local backup downloaded. No account or cloud sync needed.');
+}
+
+async function copyLocalBackup() {
+  const backupJson = JSON.stringify(buildLocalBackup(), null, 2);
+  elements.backupJsonOutput.hidden = false;
+  elements.backupJsonOutput.value = backupJson;
+
+  try {
+    await navigator.clipboard.writeText(backupJson);
+    setAppStatus('Backup JSON copied to clipboard and shown below.');
+  } catch {
+    setAppStatus('Backup JSON shown below. Select and copy it to save a manual backup.');
+  }
+}
+
+function applyImportedLocalData(data) {
+  localStorageKeys.forEach((key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // Local app features gracefully degrade when storage is disabled.
+    }
+  });
+  removeStoredRouteId();
+
+  if (data.selectedRouteId) saveSelectedRouteId(data.selectedRouteId);
+  writeLocalJson(favoriteRoutesStorageKey, data.favoriteRouteIds);
+  writeLocalJson(recentRoutesStorageKey, data.recentRouteIds);
+  writeLocalJson(filterPreferencesStorageKey, data.filterPreferences);
+
+  loadLocalState();
+  cleanupLocalRouteIds();
+  applyFilterPreferences();
+
+  const featured = routes.length > 0 ? chooseFeaturedRoute() : { route: null, mode: 'recommended' };
+  setFeaturedRoute(featured.route, featured.mode);
+  if (featured.route) {
+    selectRoute(featured.route.id, false, { persist: featured.mode === 'continue', updateHero: false });
+  } else {
+    clearSelectedRoute();
+    renderCatalog();
+  }
+}
+
+async function importLocalBackup(file) {
+  if (!file) return;
+
+  try {
+    const backup = JSON.parse(await file.text());
+    const data = validateLocalBackup(backup);
+    applyImportedLocalData(data);
+    setAppStatus('Local backup imported. Stale route IDs were ignored.');
+  } catch (error) {
+    setAppStatus(`Import failed: ${error.message}`);
+  } finally {
+    elements.importDataInput.value = '';
+  }
 }
 
 function isYouTubeRoute(route) {
@@ -284,6 +533,92 @@ function formatCandidateStatus(candidate) {
   const status = titleCase(String(candidate.status || 'candidate').replace(/-/g, ' '));
   const readiness = titleCase(String(candidate.promotionReadiness || 'needs-review').replace(/-/g, ' '));
   return `${status} · ${readiness}`;
+}
+
+function cleanCandidateQualityBadge(candidate) {
+  const text = `${candidate.videoQuality || ''} ${candidate.title || ''}`.toLowerCase();
+  if (/\b4k\b|2160p/.test(text)) return '4K';
+  if (/1080p/.test(text)) return '1080p';
+  if (/\bhd\b|720p/.test(text)) return 'HD';
+  return '';
+}
+
+function cleanCandidateAudioBadge(candidate) {
+  const audio = String(candidate.audio || '').toLowerCase();
+  if (!audio || /verify|review|unknown|tbd/.test(audio)) return '';
+  if (/natural|ambient|soundscape|road|trail|no music/.test(audio)) return 'Natural audio';
+  if (/music/.test(audio)) return 'Music';
+  if (/narrat|voice|spoken|commentary/.test(audio)) return 'Narration';
+  return titleCase(audio.split(/[;,]/)[0].trim());
+}
+
+function getCandidateBadges(candidate) {
+  return [
+    cleanCandidateQualityBadge(candidate),
+    cleanCandidateAudioBadge(candidate),
+    candidate.embeddingAllowed || candidate.embedUrl ? 'Embed OK' : '',
+    candidate.promotionReadiness === 'promoted-to-production' ? 'Promoted' : 'Needs review'
+  ].filter(Boolean);
+}
+
+function isReviewModeUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('review') === '1' || window.location.hash === '#review';
+}
+
+function applyReviewModeFromUrl() {
+  const reviewMode = isReviewModeUrl();
+  state.reviewMode = reviewMode;
+  elements.candidateBacklog.hidden = !reviewMode;
+
+  if (reviewMode && window.location.hash === '#review') {
+    window.requestAnimationFrame(() => elements.candidateBacklog.scrollIntoView({ block: 'start' }));
+  }
+
+  if (reviewMode && state.candidateStatus === 'idle') {
+    loadCandidateBacklog();
+    return;
+  }
+
+  renderCandidates();
+}
+
+function buildReviewDecisionExport() {
+  return candidateRoutes
+    .map((candidate) => {
+      const review = getCandidateReview(candidate.id);
+      if (!review.decision && !review.note.trim()) return null;
+
+      const exportedReview = {
+        id: candidate.id,
+        title: candidate.title,
+        decision: review.decision || 'note-only'
+      };
+      if (review.note.trim()) exportedReview.note = review.note.trim();
+      return exportedReview;
+    })
+    .filter(Boolean);
+}
+
+async function copyReviewDecisions() {
+  const decisions = buildReviewDecisionExport();
+  const exportText = JSON.stringify({
+    app: 'PedalScape',
+    exportedAt: new Date().toISOString(),
+    reviewDecisions: decisions
+  }, null, 2);
+
+  elements.reviewDecisionsOutput.hidden = false;
+  elements.reviewDecisionsOutput.value = exportText;
+
+  try {
+    await navigator.clipboard.writeText(exportText);
+    state.reviewDecisionStatus = `${decisions.length} review decision${decisions.length === 1 ? '' : 's'} copied. Paste this back to Copilot.`;
+  } catch {
+    state.reviewDecisionStatus = `${decisions.length} review decision${decisions.length === 1 ? '' : 's'} shown below. Select and copy it back to Copilot.`;
+  }
+
+  renderCandidates();
 }
 
 function setControlsDisabled(disabled) {
@@ -573,7 +908,15 @@ function renderCandidateStatus(message, detail = '') {
 }
 
 function renderCandidates() {
+  if (!state.reviewMode) {
+    elements.candidateGrid.innerHTML = '';
+    elements.candidateCount.textContent = '';
+    elements.reviewDecisionStatus.textContent = '';
+    return;
+  }
+
   elements.candidateGrid.innerHTML = '';
+  elements.reviewDecisionStatus.textContent = state.reviewDecisionStatus;
 
   if (state.candidateStatus === 'loading') {
     elements.candidateCount.textContent = 'Loading…';
@@ -594,10 +937,13 @@ function renderCandidates() {
   }
 
   const needsReviewCount = candidateRoutes.filter((candidate) => candidate.promotionReadiness !== 'promoted-to-production').length;
-  elements.candidateCount.textContent = `${candidateRoutes.length} backlog entr${candidateRoutes.length === 1 ? 'y' : 'ies'} · ${needsReviewCount} to review`;
+  const localDecisionCount = candidateRoutes.filter((candidate) => state.candidateReviewDecisions[candidate.id]).length;
+  elements.candidateCount.textContent = `${candidateRoutes.length} backlog entr${candidateRoutes.length === 1 ? 'y' : 'ies'} · ${needsReviewCount} to review · ${localDecisionCount} local decision${localDecisionCount === 1 ? '' : 's'}`;
 
   candidateRoutes.forEach((candidate) => {
     const card = document.createElement('article');
+    const review = getCandidateReview(candidate.id);
+    const reviewLabel = getCandidateReviewLabel(review.decision);
     const tags = candidate.sceneryTags
       .slice(0, 4)
       .map((tag) => `<li>${escapeHtml(titleCase(tag))}</li>`)
@@ -606,37 +952,71 @@ function renderCandidates() {
       .slice(0, 2)
       .map((item) => `<li>${escapeHtml(item)}</li>`)
       .join('');
+    const badges = getCandidateBadges(candidate)
+      .map((badge) => `<li>${escapeHtml(badge)}</li>`)
+      .join('');
     const promotedNote = candidate.productionCatalogId
       ? `<p class="candidate-promoted">Promoted as <code>${escapeHtml(candidate.productionCatalogId)}</code>${candidate.promotedToCatalogAt ? ` on ${escapeHtml(candidate.promotedToCatalogAt)}` : ''}.</p>`
       : '';
 
-    card.className = 'candidate-card';
+    card.className = `candidate-card ${review.decision ? `candidate-card--${review.decision}` : ''}`;
     card.innerHTML = `
-      <div class="candidate-card-header">
-        <span class="candidate-status">${escapeHtml(formatCandidateStatus(candidate))}</span>
-        <span>${escapeHtml(candidate.durationLabel)} · ${escapeHtml(candidate.intensity)}</span>
-      </div>
-      <h3>${escapeHtml(candidate.title)}</h3>
-      <dl class="candidate-meta">
-        <div><dt>Creator</dt><dd>${escapeHtml(candidate.creator || 'Unknown')}</dd></div>
-        <div><dt>Location</dt><dd>${escapeHtml(candidate.location || 'Needs review')}</dd></div>
-        <div><dt>Source</dt><dd>${escapeHtml(candidate.sourceType)}</dd></div>
-      </dl>
-      <ul class="pill-list" aria-label="Candidate tags">${tags || '<li>Needs tags</li>'}</ul>
-      <p class="candidate-notes">${escapeHtml(candidate.reviewNotes)}</p>
-      ${promotedNote}
-      ${checklist ? `<ul class="candidate-checklist" aria-label="Review checklist">${checklist}</ul>` : ''}
-      <div class="candidate-actions">
-        <a class="secondary-button compact-button" href="${escapeHtml(candidate.sourceUrl)}" target="_blank" rel="noopener">Open source</a>
+      <div class="candidate-art">
         ${
-          candidate.embedUrl
-            ? `<a class="secondary-button compact-button" href="${escapeHtml(candidate.embedUrl)}" target="_blank" rel="noopener">Open embed</a>`
-            : ''
+          candidate.thumbnailUrl
+            ? `<img src="${escapeHtml(candidate.thumbnailUrl)}" alt="Scenic preview for ${escapeHtml(candidate.title)}" loading="lazy" data-fallback="${escapeHtml(candidate.thumbnailFallbackUrl)}">`
+            : `<span aria-hidden="true">${escapeHtml(candidate.scenery)}</span>`
         }
-        <button class="secondary-button compact-button copy-source-button" type="button" data-source-url="${escapeHtml(candidate.sourceUrl)}">Copy URL</button>
+        <span class="candidate-status">${escapeHtml(formatCandidateStatus(candidate))}</span>
+      </div>
+      <div class="candidate-body">
+        <div class="candidate-card-header">
+          <span>${escapeHtml(candidate.durationLabel)} · ${escapeHtml(candidate.intensity)}</span>
+          <span>${escapeHtml(candidate.sourceType)}</span>
+        </div>
+        <span class="review-decision-badge review-decision-badge--${escapeHtml(review.decision || 'none')}">${escapeHtml(reviewLabel)}</span>
+        <h3>${escapeHtml(candidate.title)}</h3>
+        <dl class="candidate-meta">
+          <div><dt>Creator</dt><dd>${escapeHtml(candidate.creator || 'Unknown')}</dd></div>
+          <div><dt>Location</dt><dd>${escapeHtml(candidate.location || 'Needs review')}</dd></div>
+        </dl>
+        <ul class="candidate-badges" aria-label="Candidate review badges">${badges}</ul>
+        <ul class="pill-list" aria-label="Candidate tags">${tags || '<li>Needs tags</li>'}</ul>
+        ${promotedNote}
+        <div class="candidate-review-notes">
+          <button class="candidate-review-toggle" type="button" aria-expanded="false">Review notes</button>
+          <div class="candidate-review-content" hidden>
+          <p>${escapeHtml(candidate.reviewNotes)}</p>
+          ${checklist ? `<ul class="candidate-checklist" aria-label="Review checklist">${checklist}</ul>` : ''}
+          </div>
+        </div>
+        <div class="candidate-actions">
+          <a class="secondary-button compact-button" href="${escapeHtml(candidate.sourceUrl)}" target="_blank" rel="noopener">Open source</a>
+          ${
+            candidate.embedUrl
+              ? `<a class="secondary-button compact-button" href="${escapeHtml(candidate.embedUrl)}" target="_blank" rel="noopener">Open embed</a>`
+              : ''
+          }
+          <button class="secondary-button compact-button copy-source-button" type="button" data-source-url="${escapeHtml(candidate.sourceUrl)}">Copy URL</button>
+        </div>
+        <div class="candidate-decision-controls" role="group" aria-label="Review decision for ${escapeHtml(candidate.title)}">
+          <button class="secondary-button compact-button decision-button decision-button--promote" type="button" data-candidate-id="${escapeHtml(candidate.id)}" data-decision="promote" aria-pressed="${review.decision === 'promote' ? 'true' : 'false'}">Promote/Yes</button>
+          <button class="secondary-button compact-button decision-button decision-button--reject" type="button" data-candidate-id="${escapeHtml(candidate.id)}" data-decision="reject" aria-pressed="${review.decision === 'reject' ? 'true' : 'false'}">Reject/No</button>
+          <button class="secondary-button compact-button decision-button decision-button--defer" type="button" data-candidate-id="${escapeHtml(candidate.id)}" data-decision="defer" aria-pressed="${review.decision === 'defer' ? 'true' : 'false'}">Defer/Maybe</button>
+        </div>
+        <label class="candidate-note-field">
+          <span>Optional note for Copilot</span>
+          <textarea class="candidate-note-input" data-candidate-id="${escapeHtml(candidate.id)}" rows="2" placeholder="Why yes/no/maybe?">${escapeHtml(review.note || '')}</textarea>
+        </label>
       </div>
     `;
 
+    card.querySelector('img')?.addEventListener('error', (event) => {
+      const fallback = event.currentTarget.dataset.fallback;
+      if (fallback && event.currentTarget.src !== fallback) {
+        event.currentTarget.src = fallback;
+      }
+    });
     elements.candidateGrid.append(card);
   });
 
@@ -820,10 +1200,17 @@ function resetLocalData() {
       // Local app features gracefully degrade when storage is disabled.
     }
   });
+  try {
+    localStorage.removeItem(candidateReviewDecisionsStorageKey);
+  } catch {
+    // Local app features gracefully degrade when storage is disabled.
+  }
   removeStoredRouteId();
 
   state.favoriteRouteIds = new Set();
   state.recentRouteIds = [];
+  state.candidateReviewDecisions = {};
+  state.reviewDecisionStatus = '';
   state.query = '';
   state.duration = 'all';
   state.scenery = 'all';
@@ -910,14 +1297,39 @@ function bindEvents() {
 
   elements.startRideButton.addEventListener('click', startRide);
   elements.installButton.addEventListener('click', installApp);
+  elements.exportDataButton.addEventListener('click', downloadLocalBackup);
+  elements.copyDataButton.addEventListener('click', copyLocalBackup);
+  elements.exportReviewDecisionsButton.addEventListener('click', copyReviewDecisions);
+  elements.importDataInput.addEventListener('change', (event) => importLocalBackup(event.target.files[0]));
   elements.resetDataButton.addEventListener('click', resetLocalData);
   elements.favoriteRouteButton.addEventListener('click', () => {
     if (state.selectedRoute) toggleFavorite(state.selectedRoute.id);
   });
   elements.candidateGrid.addEventListener('click', (event) => {
+    const decisionButton = event.target.closest('.decision-button');
+    if (decisionButton) {
+      setCandidateReviewDecision(decisionButton.dataset.candidateId, decisionButton.dataset.decision);
+      return;
+    }
+
     const copyButton = event.target.closest('.copy-source-button');
-    if (!copyButton) return;
-    copyCandidateSource(copyButton.dataset.sourceUrl);
+    if (copyButton) {
+      copyCandidateSource(copyButton.dataset.sourceUrl);
+      return;
+    }
+
+    const reviewButton = event.target.closest('.candidate-review-toggle');
+    if (!reviewButton) return;
+    const reviewContent = reviewButton.nextElementSibling;
+    const expanded = reviewButton.getAttribute('aria-expanded') === 'true';
+    reviewButton.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    if (reviewContent) reviewContent.hidden = expanded;
+  });
+  elements.candidateGrid.addEventListener('input', (event) => {
+    if (!event.target.classList.contains('candidate-note-input')) return;
+    setCandidateReviewNote(event.target.dataset.candidateId, event.target.value);
+    state.reviewDecisionStatus = 'Note saved locally. Export decisions to send them back to Copilot.';
+    elements.reviewDecisionStatus.textContent = state.reviewDecisionStatus;
   });
   elements.fullscreenButton.addEventListener('click', () => {
     if (!state.selectedRoute && routes.length > 0) selectRoute(routes[0].id);
@@ -940,6 +1352,7 @@ function bindEvents() {
     elements.installButton.hidden = true;
     setAppStatus('PedalScape installed.');
   });
+  window.addEventListener('hashchange', applyReviewModeFromUrl);
 }
 
 async function loadCatalog() {
@@ -955,12 +1368,7 @@ async function loadCatalog() {
     const catalog = await response.json();
     routes = Array.isArray(catalog.routes) ? catalog.routes.map(normalizeRoute) : [];
     state.catalogStatus = 'ready';
-    state.favoriteRouteIds = new Set([...state.favoriteRouteIds].filter((routeId) => routes.some((route) => route.id === routeId)));
-    state.recentRouteIds = state.recentRouteIds.filter((routeId) => routes.some((route) => route.id === routeId));
-    const storedRouteId = readStoredRouteId();
-    if (storedRouteId && !routes.some((route) => route.id === storedRouteId)) removeStoredRouteId();
-    saveFavorites();
-    saveRecentRoutes();
+    cleanupLocalRouteIds();
     populateFilters();
     applyFilterPreferences();
     setControlsDisabled(routes.length === 0);
@@ -986,6 +1394,7 @@ async function loadCatalog() {
 }
 
 async function loadCandidateBacklog() {
+  if (!state.reviewMode) return;
   state.candidateStatus = 'loading';
   renderCandidates();
 
@@ -1041,7 +1450,7 @@ function init() {
   loadLocalState();
   bindEvents();
   loadCatalog();
-  loadCandidateBacklog();
+  applyReviewModeFromUrl();
   registerServiceWorker();
 }
 

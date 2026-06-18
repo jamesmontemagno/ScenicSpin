@@ -43,6 +43,10 @@ a {
   color: inherit;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .hero,
 main,
 .site-footer {
@@ -88,10 +92,10 @@ main,
 
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(20rem, 29rem);
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1.1fr) minmax(19rem, 26rem);
+  gap: 1.5rem;
   align-items: end;
-  padding: 4rem 0 2rem;
+  padding: 2rem 0 1rem;
 }
 
 .eyebrow {
@@ -112,9 +116,9 @@ p {
 
 h1 {
   max-width: 14ch;
-  margin-bottom: 1.35rem;
+  margin-bottom: 1rem;
   color: #e5f5f8;
-  font-size: clamp(2.85rem, 6.8vw, 5.75rem);
+  font-size: clamp(2.45rem, 5.8vw, 4.85rem);
   font-weight: 760;
   line-height: 0.98;
   letter-spacing: -0.055em;
@@ -135,7 +139,7 @@ h3 {
 .hero-copy {
   max-width: 46rem;
   color: var(--muted);
-  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-size: clamp(1rem, 1.7vw, 1.22rem);
   line-height: 1.55;
 }
 
@@ -160,7 +164,7 @@ h3 {
   gap: 0.75rem;
   position: relative;
   overflow: hidden;
-  min-height: 25rem;
+  min-height: 18rem;
   padding: 1.25rem;
   background: rgba(13, 34, 41, 0.82);
 }
@@ -244,19 +248,67 @@ h3 {
 }
 
 .controls-panel {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: grid;
   grid-template-columns: 1fr minmax(17rem, 26rem);
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: end;
-  margin: 1.5rem 0;
+  margin: 0.75rem 0 1rem;
   padding: 1.25rem;
+  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.3);
+}
+
+.filter-heading {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.filter-heading h2 {
+  font-size: clamp(1.55rem, 2.8vw, 2.25rem);
+}
+
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.quick-links a {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 0.48rem 0.72rem;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.quick-links a:hover {
+  border-color: rgba(56, 232, 164, 0.54);
+  color: var(--text);
 }
 
 .filter-row {
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.85rem;
+}
+
+.controls-panel input,
+.controls-panel select {
+  min-height: 3.15rem;
+}
+
+.controls-panel .toggle-field span {
+  min-height: 3.15rem;
+}
+
+.controls-panel .toggle-field input {
+  margin-bottom: 0.9rem;
 }
 
 label {
@@ -267,7 +319,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   min-height: 3.75rem;
   width: 100%;
   border: 2px solid transparent;
@@ -276,6 +329,31 @@ select {
   background: #07171d;
   color: var(--text);
   font-size: 1.05rem;
+}
+
+textarea {
+  padding: 0.9rem 1rem;
+  resize: vertical;
+}
+
+.import-data-control {
+  position: relative;
+  overflow: hidden;
+}
+
+.import-data-control input {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.backup-json-output {
+  flex-basis: 100%;
+  min-height: 9rem;
+  font-family: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+  line-height: 1.45;
 }
 
 .toggle-field {
@@ -390,7 +468,16 @@ a:focus-visible {
 .catalog-section,
 .candidate-section,
 .player-section {
+  scroll-margin-top: 14rem;
   padding: 2rem 0;
+}
+
+.catalog-section {
+  padding-top: 1rem;
+}
+
+.local-panel {
+  scroll-margin-top: 14rem;
 }
 
 .section-heading {
@@ -464,6 +551,18 @@ a:focus-visible {
   color: var(--text);
 }
 
+.candidate-review-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 0 0 1.25rem;
+}
+
+.candidate-review-toolbar .backup-json-output {
+  flex-basis: 100%;
+}
+
 .candidate-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -472,9 +571,64 @@ a:focus-visible {
 
 .candidate-card {
   display: grid;
+  grid-template-columns: minmax(11rem, 0.9fr) minmax(0, 1.1fr);
+  overflow: hidden;
+  padding: 0;
+  background: rgba(6, 19, 24, 0.45);
+}
+
+.candidate-card--promote {
+  border-color: rgba(56, 232, 164, 0.62);
+}
+
+.candidate-card--reject {
+  border-color: rgba(255, 184, 107, 0.62);
+}
+
+.candidate-card--defer {
+  border-color: rgba(104, 216, 255, 0.54);
+}
+
+.candidate-art {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, rgba(247, 200, 115, 0.8), rgba(16, 113, 157, 0.62)),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.84), transparent 7rem);
+  color: #2c1a03;
+  font-size: 1.55rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.candidate-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.58));
+  pointer-events: none;
+}
+
+.candidate-art img {
+  width: 100%;
+  height: 100%;
+  min-height: 12rem;
+  object-fit: cover;
+  transform: scale(1.02);
+}
+
+.candidate-art > span[aria-hidden="true"] {
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  padding: 1rem;
+}
+
+.candidate-body {
+  display: grid;
   gap: 0.85rem;
   padding: 1rem;
-  background: rgba(6, 19, 24, 0.45);
 }
 
 .candidate-card-header,
@@ -492,9 +646,13 @@ a:focus-visible {
 }
 
 .candidate-status {
+  position: absolute;
+  left: 0.8rem;
+  bottom: 0.8rem;
+  z-index: 1;
   border-radius: 999px;
   padding: 0.45rem 0.65rem;
-  background: rgba(247, 200, 115, 0.16);
+  background: rgba(6, 19, 24, 0.82);
   color: var(--warning);
   font-size: 0.8rem;
   letter-spacing: 0.02em;
@@ -522,7 +680,53 @@ a:focus-visible {
   font-weight: 800;
 }
 
+.candidate-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.candidate-badges li {
+  border: 1px solid rgba(56, 232, 164, 0.28);
+  border-radius: 999px;
+  padding: 0.4rem 0.62rem;
+  background: rgba(56, 232, 164, 0.1);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.review-decision-badge {
+  width: fit-content;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 0.45rem 0.65rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.review-decision-badge--promote {
+  border-color: rgba(56, 232, 164, 0.62);
+  color: var(--accent);
+}
+
+.review-decision-badge--reject {
+  border-color: rgba(255, 184, 107, 0.62);
+  color: var(--sunset);
+}
+
+.review-decision-badge--defer {
+  border-color: rgba(104, 216, 255, 0.54);
+  color: var(--sky);
+}
+
 .candidate-notes,
+.candidate-review-notes,
 .candidate-promoted,
 .candidate-checklist,
 .candidate-copy-status {
@@ -530,13 +734,60 @@ a:focus-visible {
   line-height: 1.5;
 }
 
+.candidate-review-notes {
+  font-size: 0.92rem;
+}
+
+.candidate-review-toggle {
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  font-weight: 900;
+}
+
+.candidate-review-content p {
+  margin: 0.6rem 0 0;
+}
+
 .candidate-checklist {
-  margin: 0;
+  margin: 0.6rem 0 0;
   padding-left: 1.2rem;
 }
 
 .candidate-actions {
   justify-content: flex-start;
+}
+
+.candidate-decision-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.decision-button[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+
+.decision-button--promote[aria-pressed="true"] {
+  color: var(--accent);
+}
+
+.decision-button--reject[aria-pressed="true"] {
+  color: var(--sunset);
+}
+
+.decision-button--defer[aria-pressed="true"] {
+  color: var(--sky);
+}
+
+.candidate-note-field {
+  gap: 0.45rem;
+}
+
+.candidate-note-field span {
+  font-size: 0.86rem;
 }
 
 .candidate-copy-status {
@@ -905,6 +1156,17 @@ a:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .controls-panel {
+    position: static;
+  }
+
+  .catalog-section,
+  .candidate-section,
+  .player-section,
+  .local-panel {
+    scroll-margin-top: 1rem;
+  }
+
   .candidate-grid {
     grid-template-columns: 1fr;
   }
@@ -940,8 +1202,13 @@ a:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .candidate-card {
+    grid-template-columns: 1fr;
+  }
+
   input,
   select,
+  textarea,
   .primary-button,
   .secondary-button {
     min-height: 4.25rem;

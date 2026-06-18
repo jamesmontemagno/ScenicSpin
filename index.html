@@ -4,10 +4,28 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#061318">
+    <meta name="color-scheme" content="dark">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="description" content="PedalScape is a local-first scenic cycling PWA for any indoor bike.">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Any bike. Any screen. Beautiful rides from home. PedalScape is a local-first scenic cycling PWA for any indoor bike.">
     <meta name="apple-mobile-web-app-title" content="PedalScape">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pedalscape.com/">
+    <meta property="og:site_name" content="PedalScape">
+    <meta property="og:title" content="PedalScape">
+    <meta property="og:description" content="Any bike. Any screen. Beautiful rides from home.">
+    <meta property="og:image" content="https://pedalscape.com/assets/og-image.png">
+    <meta property="og:image:secure_url" content="https://pedalscape.com/assets/og-image.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PedalScape scenic indoor cycling share image with the text: Any bike. Any screen. Beautiful rides from home.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="PedalScape">
+    <meta name="twitter:description" content="Any bike. Any screen. Beautiful rides from home.">
+    <meta name="twitter:image" content="https://pedalscape.com/assets/og-image.png">
+    <meta name="twitter:image:alt" content="PedalScape scenic indoor cycling share image with the text: Any bike. Any screen. Beautiful rides from home.">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -24,13 +42,13 @@
         <a class="skip-link" href="#player">Skip to player</a>
       </nav>
 
-      <section class="hero-grid">
+      <section class="hero-grid" aria-labelledby="heroTitle">
         <div>
           <p class="eyebrow">Indoor bike + scenic escape</p>
-          <h1>Any bike. Any screen. Beautiful rides from home.</h1>
+          <h1 id="heroTitle">Any bike. Any screen. Beautiful rides from home.</h1>
           <p class="hero-copy">
-            Browse visual route cards, choose a public scenic cycling video, and launch
-            a fullscreen ride on your laptop, tablet, or TV.
+            Jump into curated scenic cycling routes, then launch a fullscreen ride on
+            your laptop, tablet, or TV.
           </p>
         </div>
         <aside class="ride-now" aria-label="Featured ride from catalog">
@@ -48,9 +66,14 @@
 
     <main>
       <section class="controls-panel" aria-labelledby="filterTitle">
-        <div>
+        <div class="filter-heading">
           <p class="eyebrow">Find a ride</p>
           <h2 id="filterTitle">Search and filter</h2>
+          <div class="quick-links" aria-label="Ride shortcuts">
+            <a href="#catalog">Browse routes</a>
+            <a href="#player">Selected ride</a>
+            <a href="#localData">Saved rides</a>
+          </div>
         </div>
         <label class="search-field">
           <span>Search routes</span>
@@ -85,26 +108,6 @@
         </div>
       </section>
 
-      <section class="local-panel" aria-labelledby="localTitle">
-        <div>
-          <p class="eyebrow">Saved on this device</p>
-          <h2 id="localTitle">Your rides</h2>
-        </div>
-        <div class="local-summary">
-          <strong id="favoriteCount">0 favorites</strong>
-          <span>Favorites, recent rides, and filter preferences stay local to this browser.</span>
-        </div>
-        <div class="local-actions" aria-label="App actions">
-          <button id="installButton" class="secondary-button compact-button" type="button" hidden>Install app</button>
-          <button id="resetDataButton" class="secondary-button compact-button danger-button" type="button">Reset local data</button>
-          <span id="appStatus" class="local-empty" role="status" aria-live="polite"></span>
-        </div>
-        <div>
-          <p class="local-label">Recent routes</p>
-          <div id="recentRoutes" class="recent-routes" aria-live="polite"></div>
-        </div>
-      </section>
-
       <section id="catalog" class="catalog-section" aria-labelledby="catalogTitle">
         <div class="section-heading">
           <div>
@@ -116,8 +119,8 @@
         <div id="routeGrid" class="route-grid"></div>
       </section>
 
-      <section id="candidateBacklog" class="candidate-section" aria-labelledby="candidateTitle">
-        <details class="candidate-panel">
+      <section id="candidateBacklog" class="candidate-section" aria-labelledby="candidateTitle" hidden>
+        <details class="candidate-panel" open>
           <summary>
             <span>
               <span class="eyebrow">Review candidates</span>
@@ -126,9 +129,16 @@
             <span id="candidateCount" class="result-count" aria-live="polite">Loading…</span>
           </summary>
           <p class="candidate-disclaimer">
+            Review mode is intentionally hidden from the public catalog. Open it with
+            <code>?review=1</code> or <code>#review</code> when you want to triage candidates.
             These entries load from <code>routes/candidate-backlog.json</code> for review only.
             They are not mixed into the featured ride catalog until promoted into <code>routes/catalog.json</code>.
           </p>
+          <div class="candidate-review-toolbar">
+            <button id="exportReviewDecisionsButton" class="secondary-button compact-button" type="button">Export/copy review decisions</button>
+            <span id="reviewDecisionStatus" class="candidate-copy-status" role="status" aria-live="polite"></span>
+            <textarea id="reviewDecisionsOutput" class="backup-json-output" readonly hidden aria-label="PedalScape review decisions export"></textarea>
+          </div>
           <div id="candidateGrid" class="candidate-grid" aria-live="polite"></div>
         </details>
       </section>
@@ -166,6 +176,33 @@
           </aside>
         </article>
       </section>
+
+      <section id="localData" class="local-panel" aria-labelledby="localTitle">
+        <div>
+          <p class="eyebrow">Saved on this device</p>
+          <h2 id="localTitle">Your rides</h2>
+        </div>
+        <div class="local-summary">
+          <strong id="favoriteCount">0 favorites</strong>
+          <span>Favorites, recent rides, and filter preferences stay local to this browser.</span>
+        </div>
+        <div>
+          <p class="local-label">Recent routes</p>
+          <div id="recentRoutes" class="recent-routes" aria-live="polite"></div>
+        </div>
+        <div class="local-actions" aria-label="App actions">
+          <button id="installButton" class="secondary-button compact-button" type="button" hidden>Install app</button>
+          <button id="exportDataButton" class="secondary-button compact-button" type="button">Export data</button>
+          <button id="copyDataButton" class="secondary-button compact-button" type="button">Copy backup JSON</button>
+          <label class="import-data-control secondary-button compact-button">
+            <span>Import data</span>
+            <input id="importDataInput" type="file" accept="application/json,.json">
+          </label>
+          <button id="resetDataButton" class="secondary-button compact-button danger-button" type="button">Reset local data</button>
+          <span id="appStatus" class="local-empty" role="status" aria-live="polite"></span>
+          <textarea id="backupJsonOutput" class="backup-json-output" readonly hidden aria-label="PedalScape backup JSON"></textarea>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer" aria-labelledby="footerTitle">
@@ -181,7 +218,8 @@
           </p>
           <p>
             Favorites, recent rides, and preferences stay in this browser on this device. Use
-            <strong>Reset local data</strong> above whenever you want a fresh start.
+            <strong>Export data</strong> or <strong>Import data</strong> to move a local backup between
+            browsers, and <strong>Reset local data</strong> whenever you want a fresh start.
           </p>
           <p>
             PedalScape is an installable PWA for an app-like fullscreen ride experience. Videos remain
