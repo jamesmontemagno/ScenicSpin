@@ -1,0 +1,17 @@
+{
+  "universe_usage_history": [
+    {
+      "universe": "The Matrix",
+      "used_at": "2026-06-17T18:19:50.382-07:00",
+      "assignment_id": "2026-06-17-peloton-initial-squad"
+    }
+  ],
+  "assignment_cast_snapshots": {
+    "2026-06-17-peloton-initial-squad": {
+      "universe": "The Matrix",
+      "created_at": "2026-06-17T18:19:50.382-07:00",
+      "project": "peloton",
+      "agents": ["Neo", "Trinity", "Morpheus", "Switch", "Tank"]
+    }
+  }
+}

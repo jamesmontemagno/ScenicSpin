@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#061318">
+    <title>Scenic Ride Catalog</title>
+    <link rel="stylesheet" href="src/styles.css">
+  </head>
+  <body>
+    <header class="hero">
+      <nav class="topbar" aria-label="Primary">
+        <a class="brand" href="#catalog" aria-label="Scenic Ride Catalog home">
+          <span class="brand-mark" aria-hidden="true">↗</span>
+          Scenic Rides
+        </a>
+        <a class="skip-link" href="#player">Skip to player</a>
+      </nav>
+
+      <section class="hero-grid">
+        <div>
+          <p class="eyebrow">Indoor bike + scenic escape</p>
+          <h1>Ride alpine lakes, rivers, islands, and open roads.</h1>
+          <p class="hero-copy">
+            Browse visual route cards, choose a public scenic cycling video, and launch
+            a fullscreen ride on your laptop, tablet, or TV.
+          </p>
+        </div>
+        <aside class="ride-now" aria-label="Featured ride from catalog">
+          <div class="hero-art">
+            <img id="heroImage" alt="" hidden>
+            <span id="heroImageFallback" aria-hidden="true">Ride</span>
+          </div>
+          <p id="heroLabel"><span class="status-dot" aria-hidden="true"></span> Loading catalog ride</p>
+          <strong id="heroSelection">Choose a route below</strong>
+          <span id="heroMetadata" class="hero-metadata"></span>
+          <button id="heroRouteButton" class="primary-button hero-cta" type="button" disabled>Start this ride</button>
+        </aside>
+      </section>
+    </header>
+
+    <main>
+      <section class="controls-panel" aria-labelledby="filterTitle">
+        <div>
+          <p class="eyebrow">Find a ride</p>
+          <h2 id="filterTitle">Search and filter</h2>
+        </div>
+        <label class="search-field">
+          <span>Search routes</span>
+          <input id="searchInput" type="search" placeholder="Try Colorado, canyon, city..." autocomplete="off">
+        </label>
+        <div class="filter-row" aria-label="Ride filters">
+          <label>
+            <span>Duration</span>
+            <select id="durationFilter">
+              <option value="all">Any duration</option>
+              <option value="short">Under 20 min</option>
+              <option value="standard">20–60 min</option>
+              <option value="long">60+ min</option>
+            </select>
+          </label>
+          <label>
+            <span>Scenery</span>
+            <select id="sceneryFilter">
+              <option value="all">Any scenery</option>
+            </select>
+          </label>
+          <label>
+            <span>Intensity</span>
+            <select id="intensityFilter">
+              <option value="all">Any intensity</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section id="catalog" class="catalog-section" aria-labelledby="catalogTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Route catalog</p>
+            <h2 id="catalogTitle">Curated scenic rides</h2>
+          </div>
+          <p id="resultCount" class="result-count" aria-live="polite"></p>
+        </div>
+        <div id="routeGrid" class="route-grid"></div>
+      </section>
+
+      <section id="player" class="player-section" aria-labelledby="playerTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Ride mode</p>
+            <h2 id="playerTitle">Selected route</h2>
+          </div>
+          <button id="fullscreenButton" class="secondary-button" type="button">Fullscreen</button>
+        </div>
+
+        <article class="selected-layout">
+          <div id="playerShell" class="player-shell">
+            <div id="playerPlaceholder" class="player-placeholder">
+              <span aria-hidden="true">▶</span>
+              <p>Select a route to load the ride video.</p>
+            </div>
+          </div>
+
+          <aside class="route-detail">
+            <p class="eyebrow">Now selected</p>
+            <h3 id="selectedTitle">No route selected</h3>
+            <p id="selectedDescription">
+              Choose a scenic ride card above. The player supports YouTube embeds,
+              fullscreen mode, and source links for browser fallback.
+            </p>
+            <dl class="metadata-list" id="selectedMetadata"></dl>
+            <div class="ride-actions">
+              <button id="startRideButton" class="primary-button" type="button" disabled>Start ride</button>
+              <a id="sourceLink" class="secondary-button disabled-link" href="#" target="_blank" rel="noopener">Open source</a>
+            </div>
+          </aside>
+        </article>
+      </section>
+    </main>
+
+    <script src="src/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "scenic-ride-catalog",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static scenic cycling route catalog and fullscreen ride player.",
+  "scripts": {
+    "start": "python -m http.server 5173",
+    "check": "node --check src/app.js"
+  }
+}
