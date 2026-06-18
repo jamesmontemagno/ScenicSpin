@@ -66,6 +66,7 @@ test('production route cards show clean media badges without review metadata', a
   const routeWithReviewMetadata = {
     ...catalog.routes[0],
     title: 'Rallarvegen Norway Virtual Cycling Route',
+    terrain: 'mountain gravel road and highland cycling route',
     videoQuality: 'HD/4K training video; verify playback quality before launch',
     audio: 'creator training video audio; verify before launch'
   };
@@ -76,14 +77,34 @@ test('production route cards show clean media badges without review metadata', a
   await loadCatalog(page);
 
   const productionGrid = page.locator('#routeGrid');
-  await expect(productionGrid).not.toContainText(/verify playback|before launch|training video; verify/i);
+  await expect(productionGrid).not.toContainText(/verify playback|before launch|training video; verify|original audio/i);
 
   const card = page.locator('.route-card').filter({ hasText: routeWithReviewMetadata.title }).first();
-  await expect(card.locator('.route-card-badges li')).toContainText(['4K', 'Original audio']);
+  expect(await card.locator('.route-card-badges li').allTextContents()).toEqual(['4K', '60+ min', 'Gravel', 'Mountains', 'Water/Lakes']);
+  await expect(card.locator('.route-card-badges')).not.toContainText(/Original audio|verify|before launch|training video audio/i);
 
   const thumbnailAlt = await card.locator('img').getAttribute('alt');
   expect(thumbnailAlt).toBe(`Scenic preview for ${routeWithReviewMetadata.title}.`);
   expect(thumbnailAlt).not.toMatch(/4K|HD|verify|before launch/i);
+});
+
+test('production route cards normalize scenery and terrain into useful badges', async ({ page }) => {
+  await loadCatalog(page);
+
+  const lakeCard = page.locator('.route-card').filter({ hasText: 'Lake Achensee' }).first();
+  const lakeBadges = await lakeCard.locator('.route-card-badges li').allTextContents();
+  expect(lakeBadges).toEqual(expect.arrayContaining(['4K', '60+ min', 'Mountains', 'Water/Lakes']));
+  expect(lakeBadges.length).toBeLessThanOrEqual(5);
+
+  const gravelCard = page.locator('.route-card').filter({ hasText: "Rallarvegen: Norway's Most Beautiful Ride" }).first();
+  const gravelBadges = await gravelCard.locator('.route-card-badges li').allTextContents();
+  expect(gravelBadges).toEqual(expect.arrayContaining(['4K', '60+ min', 'Gravel', 'Mountains']));
+  expect(gravelBadges.length).toBeLessThanOrEqual(5);
+
+  const climbCard = page.locator('.route-card').filter({ hasText: 'Passo di Valparola Dolomites Uphill Ride' }).first();
+  const climbBadges = await climbCard.locator('.route-card-badges li').allTextContents();
+  expect(climbBadges).toEqual(expect.arrayContaining(['4K', '60+ min', 'Climb', 'Mountains']));
+  expect(climbBadges.length).toBeLessThanOrEqual(5);
 });
 
 test('candidate backlog stays hidden until review mode and exports local decisions', async ({ page, request }) => {

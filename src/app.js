@@ -19,6 +19,7 @@ const localStorageKeys = [
 ];
 const defaultRecommendationId = 'bavarian-countryside-90-minute-4k';
 const maxRecentRoutes = 5;
+const maxRouteMediaBadges = 5;
 const candidateDecisionLabels = {
   promote: 'Promote/Yes',
   reject: 'Reject/No',
@@ -166,12 +167,13 @@ function cleanQualityBadges(route) {
 
 function cleanAudioBadge(route) {
   const audio = cleanPublicText(route.audio).toLowerCase();
-  const combined = `${route.audio || ''} ${route.title || ''}`.toLowerCase();
 
-  if (/natural|ambient|soundscape|road|trail|no music/.test(combined)) return 'Natural audio';
+  if (!audio || /creator|original|video audio|training video audio|tour video audio|indoor cycling video audio/.test(audio)) return '';
+  if (/natural|ambient|soundscape/.test(audio)) return 'Natural audio';
+  if (/no music|music-free|without music/.test(audio)) return 'No music';
   if (/music/.test(audio)) return 'Music';
   if (/narrat|voice|spoken|commentary/.test(audio)) return 'Narration';
-  if (/creator|original|video audio|training video audio|tour video audio|indoor cycling video audio/.test(combined)) return '';
+  if (/unknown|verify|review|tbd/.test(audio)) return '';
   return audio ? titleCase(audio.split(/[;,]/)[0].trim()) : '';
 }
 
@@ -179,11 +181,53 @@ function uniqueList(values) {
   return [...new Set(values.filter(Boolean))];
 }
 
+function cleanDurationBadge(route) {
+  const minutes = route.durationMinutes;
+  if (!Number.isFinite(minutes)) return '';
+  if (minutes >= 60) return '60+ min';
+  if (minutes < 30) return `${minutes} min`;
+  return '';
+}
+
+function routeBadgeText(route) {
+  const tags = Array.isArray(route.sceneryTags) ? route.sceneryTags.join(' ') : '';
+  return [
+    route.title,
+    route.location,
+    route.terrain,
+    route.cameraStyle,
+    route.difficulty,
+    tags
+  ].map((value) => cleanPublicText(value).toLowerCase()).join(' ');
+}
+
+function cleanSceneryTerrainBadges(route) {
+  const text = routeBadgeText(route);
+  const badges = [];
+  const addBadge = (label, pattern) => {
+    if (pattern.test(text)) badges.push(label);
+  };
+
+  addBadge('Gravel', /\bgravel\b/);
+  addBadge('Climb', /\b(climbs?|climbing|ascent|uphill|passes?|passo|summit|switchback)\b/);
+  addBadge('Mountains', /\b(alps?|alpine|dolomites?|rockies|rocky mountains?|mountains?|highlands?|mesa)\b/);
+  addBadge('Coastal', /\b(coasts?|coastal|islands?|ocean|seaside|shoreline|beach|mediterranean)\b/);
+  addBadge('Water/Lakes', /\b(lakes?|rivers?|riverside|waterfront|lakeside|fjord|canal|loch|reservoir)\b/);
+  addBadge('Forest', /\b(forests?|woodlands?|woods)\b/);
+  addBadge('Countryside', /\b(countryside|rural|farmland|pastoral|valleys?|vineyards?|villages?)\b/);
+  addBadge('City', /\b(city|urban)\b/);
+  addBadge('Flat/Easy', /\b(flat|easy|gentle|relaxed|river paths?|riverside paths?)\b/);
+
+  return uniqueList(badges);
+}
+
 function getRouteMediaBadges(route) {
   return uniqueList([
     ...cleanQualityBadges(route),
+    cleanDurationBadge(route),
+    ...cleanSceneryTerrainBadges(route),
     cleanAudioBadge(route)
-  ]);
+  ]).slice(0, maxRouteMediaBadges);
 }
 
 function getThumbnailAltText(route) {
@@ -920,7 +964,7 @@ function renderCatalog() {
             ? `<img src="${escapeHtml(route.thumbnailUrl)}" alt="${escapeHtml(getThumbnailAltText(route))}" loading="lazy" data-fallback="${escapeHtml(route.thumbnailFallbackUrl)}">`
             : `<span aria-hidden="true">${escapeHtml(route.scenery)}</span>`
         }
-        <ul class="route-card-badges" aria-label="Video and audio badges">${mediaBadges}</ul>
+        <ul class="route-card-badges" aria-label="Route highlight badges">${mediaBadges}</ul>
         <button class="favorite-card-button ${isFavorite(route.id) ? 'is-favorite' : ''}" type="button" aria-pressed="${isFavorite(route.id) ? 'true' : 'false'}" aria-label="${isFavorite(route.id) ? 'Remove favorite' : 'Save favorite'}: ${escapeHtml(route.title)}">
           ${isFavorite(route.id) ? '★' : '☆'}
         </button>
