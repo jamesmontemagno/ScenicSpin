@@ -391,6 +391,6 @@ test('rejects invalid local backup before writing app data', async ({ page }) =>
     buffer: Buffer.from(JSON.stringify({ app: 'OtherApp', schemaVersion: 1, localData: {} }))
   });
 
-  await expect(page.locator('#appStatus')).toContainText(`Import failed: \`Backup is not for ${SITE_NAME}\`.`);
+  await expect(page.locator('#appStatus')).toContainText(`Import failed: Backup is not for ${SITE_NAME}.`);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('scenicRideCatalog.favoriteRouteIds')))).toEqual(['keep-me']);
 });
