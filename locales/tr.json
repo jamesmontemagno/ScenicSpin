@@ -142,7 +142,7 @@
   "footer_copy_1": "<a href=\"https://www.hanselman.com/\" target=\"_blank\" rel=\"noopener\">Scott Hanselman</a> tarafından yapılmıştır. Arka uç veritabanı, hesap sistemi veya sosyal giriş yoktur.",
   "footer_copy_2": "Favoriler, son {{activity_noun_plural}} ve tercihler bu cihazdaki bu tarayıcıda kalır. Bir yerel yedeği tarayıcılar arasında taşımak için <strong>Verileri dışa aktar</strong> veya <strong>Veri içe aktar</strong>'ı kullanın ve temiz bir başlangıç yapmak istediğinizde <strong>Yerel verileri sıfırla</strong> seçeneğini kullanın.",
   "footer_copy_3": "{{site_name}}, uygulama benzeri tam ekran {{activity_noun_singular}} deneyimi için yüklenebilir bir PWA'dır. Videolar orijinal oluşturucuları ve platformları tarafından barındırılmaya devam eder; {{site_name}} yalnızca onlara bağlantı verir veya onları yerleştirir.",
-  "footer_copy_4": "{{sister_site_activity}} mi tercih ediyorsunuz? <a href=\"{{sister_site_url}}\" target=\"_blank\" rel=\"noopener\">{{sister_site_name}}</a> koşu bandınız veya bisikletiniz için ayarlanmış aynı uygulamadır.",
+  "footer_copy_4": "{{sister_site_activity}} mi tercih ediyorsunuz? <a href=\"{{sister_site_url}}\" target=\"_blank\" rel=\"noopener\">{{sister_site_name}}</a> {{sister_site_activity}} için ayarlanmış aynı uygulamadır.",
   "footer_sister_link": "{{sister_site_name}}'i deneyin →",
   "footer_github_link": "Kaynağı GitHub'da görüntüle",
   "duration_unknown": "Bilinmiyor",

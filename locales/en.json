@@ -142,7 +142,7 @@
   "footer_copy_1": "Made by <a href=\"https://www.hanselman.com/\" target=\"_blank\" rel=\"noopener\">Scott Hanselman</a>. There is no backend database, account system, or social login.",
   "footer_copy_2": "Favorites, recent {{activity_noun_plural}}, and preferences stay in this browser on this device. Use <strong>Export data</strong> or <strong>Import data</strong> to move a local backup between browsers, and <strong>Reset local data</strong> whenever you want a fresh start.",
   "footer_copy_3": "{{site_name}} is an installable PWA for an app-like fullscreen {{activity_noun_singular}} experience. Videos remain hosted by their original creators and platforms; {{site_name}} only links or embeds them.",
-  "footer_copy_4": "Prefer {{sister_site_activity}}? <a href=\"{{sister_site_url}}\" target=\"_blank\" rel=\"noopener\">{{sister_site_name}}</a> is the same app, tuned for your treadmill or your bike.",
+  "footer_copy_4": "Prefer {{sister_site_activity}}? <a href=\"{{sister_site_url}}\" target=\"_blank\" rel=\"noopener\">{{sister_site_name}}</a> is the same app, tuned for {{sister_site_activity}}.",
   "footer_sister_link": "Try {{sister_site_name}} →",
   "footer_github_link": "View source on GitHub",
   "duration_unknown": "Unknown",

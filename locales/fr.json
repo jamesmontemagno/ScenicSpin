@@ -142,7 +142,7 @@
   "footer_copy_1": "Créé par <a href=\"https://www.hanselman.com/\" target=\"_blank\" rel=\"noopener\">Scott Hanselman</a>. Il n'y a pas de base de données backend, de système de compte ou de connexion sociale.",
   "footer_copy_2": "Les favoris, les {{activity_noun_plural}} récentes et les préférences restent dans ce navigateur sur cet appareil. Utilisez <strong>Exporter les données</strong> ou <strong>Importer les données</strong> pour déplacer une sauvegarde locale entre les navigateurs, et <strong>Réinitialiser les données locales</strong> chaque fois que vous souhaitez repartir à zéro.",
   "footer_copy_3": "{{site_name}} est une PWA installable pour une expérience de {{activity_noun_singular}} en plein écran de type application. Les vidéos restent hébergées par leurs créateurs et plateformes d'origine ; {{site_name}} ne fait que les lier ou les intégrer.",
-  "footer_copy_4": "Vous préférez le {{sister_site_activity}} ? <a href=\"{{sister_site_url}}\" target=\"_blank\" rel=\"noopener\">{{sister_site_name}}</a> est la même application, adaptée pour votre tapis de course ou votre vélo.",
+  "footer_copy_4": "Vous préférez {{sister_site_activity}} ? <a href=\"{{sister_site_url}}\" target=\"_blank\" rel=\"noopener\">{{sister_site_name}}</a> est la même application, adaptée pour {{sister_site_activity}}.",
   "footer_sister_link": "Essayez {{sister_site_name}} →",
   "footer_github_link": "Voir le code source sur GitHub",
   "duration_unknown": "Inconnue",
