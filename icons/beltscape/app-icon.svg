@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="64" y1="32" x2="448" y2="480" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14283d"/>
+      <stop offset="1" stop-color="#060d18"/>
+    </linearGradient>
+    <linearGradient id="path" x1="76" y1="304" x2="438" y2="304" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4d9de0"/>
+      <stop offset="1" stop-color="#68d8ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <!-- Sun -->
+  <circle cx="396" cy="116" r="44" fill="#ffb86b"/>
+  <!-- Ground path lines -->
+  <path d="M72 390c72-18 144-18 216 0s144 18 216 0" fill="none" stroke="#4d9de0" stroke-opacity=".35" stroke-width="22" stroke-linecap="round"/>
+  <!-- Walking figure -->
+  <!-- Head -->
+  <circle cx="256" cy="148" r="36" fill="none" stroke="#f1fbfd" stroke-width="22"/>
+  <!-- Body -->
+  <path d="M256 184v120" fill="none" stroke="#f1fbfd" stroke-width="24" stroke-linecap="round"/>
+  <!-- Left arm swung forward -->
+  <path d="M256 224 l-72 48" fill="none" stroke="url(#path)" stroke-width="22" stroke-linecap="round"/>
+  <!-- Right arm swung back -->
+  <path d="M256 224 l68-40" fill="none" stroke="url(#path)" stroke-width="22" stroke-linecap="round"/>
+  <!-- Left leg forward -->
+  <path d="M256 304 l-60 96" fill="none" stroke="#f1fbfd" stroke-width="24" stroke-linecap="round"/>
+  <!-- Right leg back -->
+  <path d="M256 304 l56 88" fill="none" stroke="#68d8ff" stroke-width="24" stroke-linecap="round"/>
+</svg>
