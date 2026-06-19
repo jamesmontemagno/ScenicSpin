@@ -38,7 +38,11 @@ test('service worker keeps the app shell and route data usable offline', async (
   await context.setOffline(true);
   await page.reload({ waitUntil: 'domcontentloaded' });
 
-  await expect(page.locator('#resultCount')).toHaveText(new RegExp(`^\\d+ ${ACTIVITY_NOUN}s?$`), { timeout: 15000 });
+  // Wait for app JS to hydrate from SW cache — poll until non-empty, then assert format
+  await expect.poll(
+    () => page.locator('#resultCount').textContent(),
+    { timeout: 20000, intervals: [500, 1000, 2000] }
+  ).toMatch(new RegExp(`^\\d+ ${ACTIVITY_NOUN}s?$`));
   await expect(page.locator('.route-card').first()).toBeVisible();
 
   await context.setOffline(false);
