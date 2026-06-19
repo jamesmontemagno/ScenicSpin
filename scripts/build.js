@@ -63,6 +63,7 @@ const tokens = {
   '{{MANIFEST_DESC}}':       config.manifestDescription,
   '{{SISTER_SITE_NAME}}':    config.sisterSiteName,
   '{{SISTER_SITE_URL}}':     config.sisterSiteUrl,
+  '{{SISTER_SITE_EMOJI}}':   config.sisterSiteEmoji,
   '{{SISTER_SITE_ACTIVITY}}': config.sisterSiteActivity,
 };
 

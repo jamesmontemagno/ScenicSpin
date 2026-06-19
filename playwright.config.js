@@ -1,4 +1,18 @@
 const { defineConfig, devices } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
+
+const siteSlug = process.env.SITE || 'pedalscape';
+const configPath = path.join(__dirname, 'sites', `${siteSlug}.config.json`);
+const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+const siteConfig = {
+  siteName: config.siteName,
+  activityNoun: config.activityNoun,
+  activityNounSingular: config.activityNounSingular,
+  bgColor: config.bgColor,
+  cacheName: config.cacheName,
+};
 
 module.exports = defineConfig({
   testDir: './tests',
@@ -24,3 +38,5 @@ module.exports = defineConfig({
     }
   ]
 });
+
+module.exports.siteConfig = siteConfig;
