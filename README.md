@@ -314,8 +314,7 @@ Please keep the projects local‑first and privacy‑friendly: no analytics, no 
 ## 👏 Credits
 
 - **Author & maintainer:** Scott Hanselman ([@shanselman](https://github.com/shanselman))
-- **Translations:**
-  - 🇹🇷 Turkish — Serdar Cevher
+- **Translations:** Serdar Cevher (🇪🇸 Spanish, 🇫🇷 French, 🇮🇹 Italian, 🇹🇷 Turkish)
   - 🇪🇸 Spanish · 🇫🇷 French · 🇮🇹 Italian — community contributors
 - **Scenic routes:** the original YouTube creators, whose public streams are embedded with attribution. Please support them directly.
 
