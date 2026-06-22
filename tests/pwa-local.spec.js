@@ -63,6 +63,8 @@ test('loads the production JSON route catalog and exposes PWA assets', async ({ 
   const serviceWorkerText = await serviceWorker.text();
   expect(serviceWorkerText).toContain('./routes/catalog.json');
   expect(serviceWorkerText).toContain('./routes/candidate-backlog.json');
+  expect(serviceWorkerText).toContain("event.data?.type === 'SKIP_WAITING'");
+  expect(serviceWorkerText).not.toContain('self.skipWaiting();\n});\n\nself.addEventListener(\'activate\'');
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', 'manifest.webmanifest');
   await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', /width=device-width/);
   await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', THEME_COLOR);
@@ -85,12 +87,17 @@ test('Chinese locales are available from the language switcher', async ({ page, 
   await page.locator('.lang-switcher [data-lang="zh-TW"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-TW');
   await expect(page.locator('#filterTitle')).toHaveText('搜尋與篩選');
+  await expect(page.locator('.lang-switcher')).toHaveAttribute('aria-label', '語言');
   await expect(page.locator('.lang-switcher [data-lang="zh-TW"]')).toHaveClass(/active-lang/);
+  await expect(page.locator('.lang-switcher [data-lang="zh-TW"]')).toHaveAttribute('aria-current', 'true');
 
   await page.locator('.lang-switcher [data-lang="zh-CN"]').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
   await expect(page.locator('#filterTitle')).toHaveText('搜索与筛选');
+  await expect(page.locator('.lang-switcher')).toHaveAttribute('aria-label', '语言');
   await expect(page.locator('.lang-switcher [data-lang="zh-CN"]')).toHaveClass(/active-lang/);
+  await expect(page.locator('.lang-switcher [data-lang="zh-CN"]')).toHaveAttribute('aria-current', 'true');
+  await expect(page.locator('.lang-switcher [data-lang="zh-TW"]')).not.toHaveAttribute('aria-current', 'true');
 });
 
 test('Traditional Chinese browser locale variants with multiple underscores resolve to zh-TW', async ({ page }) => {
@@ -224,18 +231,13 @@ test('scenery filter uses normalized rider-facing categories', async ({ page }) 
   expect(preferences).toMatchObject({ scenery: filterValue });
 });
 
-test('candidate backlog stays hidden until review mode and exports local decisions', async ({ page, request }) => {
+test('empty candidate backlog stays hidden until review mode and shows an empty state', async ({ page, request }) => {
   const backlogResponse = await request.get('/routes/candidate-backlog.json');
   expect(backlogResponse.ok()).toBeTruthy();
   const backlog = await backlogResponse.json();
   expect(backlog.schemaVersion).toBe(1);
   expect(Array.isArray(backlog.candidateRoutes)).toBeTruthy();
-  expect(backlog.candidateRoutes.length).toBeGreaterThan(0);
-  expect(backlog.candidateRoutes[0]).toEqual(expect.objectContaining({
-    id: expect.any(String),
-    title: expect.any(String),
-    sourceUrl: expect.any(String)
-  }));
+  expect(backlog.candidateRoutes).toHaveLength(0);
 
   await loadCatalogStatus(page);
   await expect(page.locator('#candidateBacklog')).toBeHidden();
@@ -243,16 +245,72 @@ test('candidate backlog stays hidden until review mode and exports local decisio
 
   await page.goto('/?review=1', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#candidateBacklog')).toBeVisible();
-  await expect(page.locator('#candidateCount')).toContainText(`${backlog.candidateRoutes.length} backlog`);
-  await expect(page.locator('.candidate-card').first()).toContainText(backlog.candidateRoutes[0].title);
   await expect(page.locator('.candidate-disclaimer')).toContainText('?review=1');
+  await expect(page.locator('#candidateCount')).toContainText('0 candidates');
+  await expect(page.locator('.candidate-card')).toHaveCount(0);
+  await expect(page.locator('.empty-state')).toContainText('No candidate backlog entries found.');
+});
+
+test('candidate review mode exports local decisions for a non-empty backlog', async ({ page }) => {
+  const candidate = {
+    id: 'candidate-synthetic-review-route',
+    status: 'candidate',
+    curationTier: 'backlog',
+    promotionReadiness: 'needs-review',
+    title: 'Synthetic Review Route',
+    sourceUrl: 'https://www.youtube.com/watch?v=abc123review',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/abc123review',
+    sourcePlatform: 'youtube',
+    creator: 'Synthetic Creator',
+    location: 'Test Valley, Cascadia',
+    durationMinutes: 42,
+    difficulty: 'moderate',
+    terrain: 'paved riverside path',
+    sceneryTags: ['river', 'forest'],
+    videoQuality: '4K',
+    audio: 'natural sounds, no music',
+    cameraStyle: 'first-person POV',
+    embeddingAllowed: true,
+    license: 'Synthetic Playwright fixture; not production catalog data.',
+    curationNotes: 'Synthetic candidate note for exercising review export.'
+  };
+
+  await page.route('**/routes/candidate-backlog.json', (route) => route.fulfill({
+    json: {
+      schemaVersion: 1,
+      generatedAt: '2026-06-22',
+      statusDefinitions: {
+        candidate: 'Discovered public stream; metadata may be inferred and must be reviewed.',
+        reviewed: 'Human verified source, embed playback, duration, quality, route/location, and legal stance.',
+        featured: 'Top-quality reviewed route appropriate for production catalog/homepage.',
+        rejected: 'Failed source, legal, embedding, safety, quality, duplication, or pacing checks.'
+      },
+      curationTiers: {
+        backlog: 'Unreviewed candidates used for research and triage.',
+        reviewed: 'Eligible for import into production catalog after product fit check.',
+        featured: 'Small hand-picked set exposed prominently in production and retained here for curation traceability.'
+      },
+      candidateRoutes: [candidate]
+    }
+  }));
+
+  await page.goto('/?review=1', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#candidateBacklog')).toBeVisible();
+  await expect(page.locator('#candidateCount')).toContainText('1 backlog');
+  await expect(page.locator('.candidate-card')).toHaveCount(1);
+  await expect(page.locator('.candidate-card').first()).toContainText(candidate.title);
+  expect(candidate).toEqual(expect.objectContaining({
+    id: expect.any(String),
+    title: expect.any(String),
+    sourceUrl: expect.any(String)
+  }));
 
   await page.locator('.candidate-card').first().locator('.decision-button--promote').click();
   await page.locator('.candidate-card').first().locator('.candidate-note-input').fill('Looks like a strong fit.');
   await expect(page.locator('.candidate-card').first().locator('.review-decision-badge')).toHaveText('Promote/Yes');
   await expect
     .poll(() => page.evaluate(key => localStorage.getItem(key), `${SITE_NAME}.reviewDecisions`))
-    .toContain(backlog.candidateRoutes[0].id);
+    .toContain(candidate.id);
 
   const exportData = await page.evaluate(() => {
     document.querySelector('#exportReviewDecisionsButton').click();
@@ -260,8 +318,8 @@ test('candidate backlog stays hidden until review mode and exports local decisio
   });
   expect(exportData.reviewDecisions).toEqual([
     expect.objectContaining({
-      id: backlog.candidateRoutes[0].id,
-      title: backlog.candidateRoutes[0].title,
+      id: candidate.id,
+      title: candidate.title,
       decision: 'promote',
       note: 'Looks like a strong fit.'
     })
@@ -310,6 +368,7 @@ test('search and select filters update results and persist preferences', async (
   const catalogResponse = await request.get('/routes/catalog.json');
   const catalog = await catalogResponse.json();
   await loadCatalog(page);
+  const initialCount = await page.locator('.route-card').count();
 
   // Use the country from the first route's location as a search term
   const firstLocation = catalog.routes[0].location || '';
@@ -328,6 +387,15 @@ test('search and select filters update results and persist preferences', async (
   await page.reload();
   await expect(page.locator('#searchInput')).toHaveValue(searchTerm.toLowerCase());
   await expect(page.locator('#durationFilter')).toHaveValue('long');
+
+  await page.locator('#searchInput').fill('no-route-should-match-this-filter');
+  await expect(page.locator('.empty-state')).toContainText('No routes match these filters.');
+  await expect(page.locator('.clear-filters-button')).toHaveText('Clear filters');
+  await page.locator('.clear-filters-button').click();
+  await expect(page.locator('#searchInput')).toHaveValue('');
+  await expect(page.locator('#durationFilter')).toHaveValue('all');
+  await expect(page.locator('#favoritesFilter')).not.toBeChecked();
+  await expect(page.locator('.route-card')).toHaveCount(initialCount);
 });
 
 test('starting a ride stores continue state, recents, hero continue, and loads iframe', async ({ page }) => {
@@ -412,6 +480,77 @@ test('install prompt surfaces install button and handles acceptance', async ({ p
   await page.locator('#installButton').click();
   await expect(page.locator('#installButton')).toBeHidden();
   await expect(page.locator('#appStatus')).toHaveText(`${SITE_NAME} installed.`);
+});
+
+test('PWA update waits for an explicit refresh action and reports connectivity', async ({ page }) => {
+  await page.addInitScript(() => {
+    const serviceWorkerListeners = {};
+    const registrationListeners = {};
+    const registration = {
+      installing: null,
+      waiting: null,
+      addEventListener(type, listener) {
+        registrationListeners[type] = registrationListeners[type] || [];
+        registrationListeners[type].push(listener);
+      }
+    };
+
+    window.__lastServiceWorkerMessage = null;
+    window.__triggerPwaUpdate = () => {
+      const workerListeners = {};
+      const worker = {
+        state: 'installing',
+        postMessage(message) {
+          window.__lastServiceWorkerMessage = message;
+        },
+        addEventListener(type, listener) {
+          workerListeners[type] = workerListeners[type] || [];
+          workerListeners[type].push(listener);
+        }
+      };
+
+      registration.installing = worker;
+      registration.waiting = worker;
+      for (const listener of registrationListeners.updatefound || []) listener();
+      worker.state = 'installed';
+      for (const listener of workerListeners.statechange || []) listener();
+    };
+
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: {
+        controller: {},
+        addEventListener(type, listener) {
+          serviceWorkerListeners[type] = serviceWorkerListeners[type] || [];
+          serviceWorkerListeners[type].push(listener);
+        },
+        register() {
+          window.__serviceWorkerRegistered = true;
+          return Promise.resolve(registration);
+        }
+      }
+    });
+  });
+
+  await loadCatalogStatus(page);
+  await expect.poll(() => page.evaluate(() => window.__serviceWorkerRegistered)).toBeTruthy();
+
+  await page.evaluate(() => window.dispatchEvent(new Event('offline')));
+  await expect(page.locator('#appStatus')).toHaveText('Offline — cached routes and the app shell remain available.');
+  await page.evaluate(() => window.dispatchEvent(new Event('online')));
+  await expect(page.locator('#appStatus')).toHaveText('Back online. New route data can load again.');
+
+  await page.evaluate(() => window.__triggerPwaUpdate());
+  await expect(page.locator('#appStatus')).toHaveText('Update ready. Refresh when you’re ready.');
+  await expect(page.locator('#updateButton')).toBeVisible();
+
+  await page.evaluate(() => window.dispatchEvent(new Event('offline')));
+  await expect(page.locator('#appStatus')).toHaveText('Update ready. Refresh when you’re ready.');
+
+  await page.locator('#updateButton').click();
+  await expect(page.locator('#updateButton')).toBeHidden();
+  await expect(page.locator('#appStatus')).toHaveText('Applying update…');
+  await expect.poll(() => page.evaluate(() => window.__lastServiceWorkerMessage)).toEqual({ type: 'SKIP_WAITING' });
 });
 
 test(`exports only ${SITE_NAME} local data and imports a validated backup`, async ({ page }) => {

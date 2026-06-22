@@ -28,7 +28,7 @@ module.exports = defineConfig({
     trace: 'on-first-retry'
   },
   webServer: {
-    command: `python3 -m http.server 5173 --bind 127.0.0.1 --directory dist/${siteSlug}`,
+    command: `node scripts/serve-dist.js ${siteSlug} 5173`,
     url: 'http://127.0.0.1:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 10_000

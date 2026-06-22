@@ -118,7 +118,6 @@ ScenicSpin/
 ### Prerequisites
 
 - **Node.js 20+** (build script uses only built‑ins — no `node_modules` required to build)
-- **Python 3** (for the static preview server) *or* any static file server
 - **npm** (only needed to install Playwright for tests)
 
 ### Quick start
@@ -149,10 +148,41 @@ npm run preview:beltscape             # serves dist/beltscape at http://127.0.0.
 | `npm run build:all` | Build both sites |
 | `npm run preview:pedalscape` | Static‑serve PedalScape on port `5173` |
 | `npm run preview:beltscape` | Static‑serve BeltScape on port `5174` |
-| `npm run check` | `node --check` syntax‑validate `src/app.js` |
+| `npm run check` | Syntax-check app/scripts and validate catalogs/locales |
 | `npm run test:pedalscape` | Build + run Playwright tests for PedalScape |
 | `npm run test:beltscape` | Build + run Playwright tests for BeltScape |
 | `npm run test:all` | Test both sites |
+
+---
+
+## 🐳 Docker
+
+You can also build, preview, and test with Docker without installing Node locally.
+
+### Build the image
+
+```bash
+docker build -t scenicspin .
+```
+
+The image installs pinned npm dependencies with `npm ci`, installs Playwright Chromium, builds the default PedalScape site into `dist/pedalscape/`, and configures the container to serve it with the same Node static server used by local previews and tests.
+
+### Run a preview
+
+```bash
+docker run --rm -p 5173:5173 scenicspin
+```
+
+Open http://localhost:5173 to view the built PedalScape site.
+
+### Run tests
+
+Build and run the tests:
+
+```bash
+docker build -t scenicspin .
+docker run --rm --shm-size=1g scenicspin npm run test:all
+```
 
 ---
 

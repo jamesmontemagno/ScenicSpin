@@ -1,6 +1,8 @@
 let routes = [];
 let candidateRoutes = [];
 let deferredInstallPrompt = null;
+let pendingServiceWorker = null;
+let applyingServiceWorkerUpdate = false;
 
 const catalogUrl = 'routes/catalog.json';
 const candidateBacklogUrl = 'routes/candidate-backlog.json';
@@ -106,11 +108,21 @@ function applyStaticI18n() {
     const key = el.getAttribute('data-i18n-placeholder');
     el.placeholder = t(key);
   });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-aria-label');
+    el.setAttribute('aria-label', t(key));
+  });
 }
 
 function applyLangSwitcherActive(lang) {
   document.querySelectorAll('.lang-switcher a').forEach((el) => {
-    el.classList.toggle('active-lang', el.dataset.lang === lang);
+    const active = el.dataset.lang === lang;
+    el.classList.toggle('active-lang', active);
+    if (active) {
+      el.setAttribute('aria-current', 'true');
+    } else {
+      el.removeAttribute('aria-current');
+    }
   });
 }
 
@@ -175,6 +187,7 @@ const elements = {
   fullscreenButton: document.querySelector('#fullscreenButton'),
   sourceLink: document.querySelector('#sourceLink'),
   installButton: document.querySelector('#installButton'),
+  updateButton: document.querySelector('#updateButton'),
   exportDataButton: document.querySelector('#exportDataButton'),
   copyDataButton: document.querySelector('#copyDataButton'),
   importDataInput: document.querySelector('#importDataInput'),
@@ -904,6 +917,27 @@ function resetFilter(select, label) {
   select.innerHTML = `<option value="all">${label}</option>`;
 }
 
+function translateSceneryLabel(label) {
+  const keyMap = {
+    Mountains: 'scenery_mountains',
+    'Water/Lakes': 'scenery_water_lakes',
+    Coastal: 'scenery_coastal',
+    Climb: 'scenery_climb',
+    Forest: 'scenery_forest',
+    Countryside: 'scenery_countryside',
+    City: 'scenery_city',
+    'Flat/Easy': 'scenery_flat_easy',
+    Gravel: 'scenery_gravel'
+  };
+  const key = keyMap[label];
+  return key && i18n[key] ? t(key) : label;
+}
+
+function translateIntensityLabel(label) {
+  const key = `intensity_${label.toLowerCase()}`;
+  return i18n[key] || titleCase(label);
+}
+
 function populateFilter(select, values, formatLabel = titleCase) {
   values.forEach((value) => {
     const option = document.createElement('option');
@@ -916,8 +950,8 @@ function populateFilter(select, values, formatLabel = titleCase) {
 function populateFilters() {
   resetFilter(elements.sceneryFilter, t('filter_scenery_any'));
   resetFilter(elements.intensityFilter, t('filter_intensity_any'));
-  populateFilter(elements.sceneryFilter, uniqueSceneryTags(), (value) => value);
-  populateFilter(elements.intensityFilter, uniqueValues('intensity'));
+  populateFilter(elements.sceneryFilter, uniqueSceneryTags(), translateSceneryLabel);
+  populateFilter(elements.intensityFilter, uniqueValues('intensity'), translateIntensityLabel);
 }
 
 function durationMatches(route) {
@@ -984,6 +1018,33 @@ function renderStatus(message, detail = '') {
       ${detail ? `<span>${escapeHtml(detail)}</span>` : ''}
     </div>
   `;
+}
+
+function clearCatalogFilters() {
+  state.query = '';
+  state.duration = 'all';
+  state.scenery = 'all';
+  state.intensity = 'all';
+  state.favoritesOnly = false;
+  elements.searchInput.value = '';
+  elements.durationFilter.value = 'all';
+  elements.sceneryFilter.value = 'all';
+  elements.intensityFilter.value = 'all';
+  elements.favoritesFilter.checked = false;
+  saveFilterPreferences();
+  renderCatalog();
+  elements.searchInput.focus();
+}
+
+function renderNoMatchStatus() {
+  elements.routeGrid.innerHTML = `
+    <div class="empty-state">
+      <strong>${escapeHtml(t('catalog_no_match'))}</strong>
+      <span>${escapeHtml(t('catalog_no_match_detail'))}</span>
+      <button class="secondary-button compact-button clear-filters-button" type="button">${escapeHtml(t('catalog_clear_filters'))}</button>
+    </div>
+  `;
+  elements.routeGrid.querySelector('.clear-filters-button')?.addEventListener('click', clearCatalogFilters);
 }
 
 function setHeroImage(route) {
@@ -1057,6 +1118,32 @@ function setAppStatus(message = '') {
   elements.appStatus.textContent = message;
 }
 
+function setConnectivityStatus(message = '') {
+  if (pendingServiceWorker && !applyingServiceWorkerUpdate) return;
+  setAppStatus(message);
+}
+
+function showUpdateReady(worker) {
+  pendingServiceWorker = worker;
+  applyingServiceWorkerUpdate = false;
+  elements.updateButton.hidden = false;
+  setAppStatus(t('update_ready'));
+}
+
+function applyPendingServiceWorkerUpdate() {
+  if (!pendingServiceWorker) return;
+
+  applyingServiceWorkerUpdate = true;
+  elements.updateButton.hidden = true;
+  setAppStatus(t('update_applying'));
+
+  if (typeof pendingServiceWorker.postMessage === 'function') {
+    pendingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+  } else {
+    window.location.reload();
+  }
+}
+
 function renderCatalog() {
   elements.routeGrid.innerHTML = '';
   renderLocalPanel();
@@ -1083,7 +1170,7 @@ function renderCatalog() {
   elements.resultCount.textContent = visibleRoutes.length === 1 ? t('catalog_result_count_one') : t('catalog_result_count_other', { count: visibleRoutes.length });
 
   if (visibleRoutes.length === 0) {
-    renderStatus(t('catalog_no_match'), t('catalog_no_match_detail'));
+    renderNoMatchStatus();
     return;
   }
 
@@ -1653,6 +1740,9 @@ function bindEvents() {
     elements.installButton.hidden = true;
     setAppStatus(t('app_installed'));
   });
+  elements.updateButton.addEventListener('click', applyPendingServiceWorkerUpdate);
+  window.addEventListener('offline', () => setConnectivityStatus(t('offline_ready')));
+  window.addEventListener('online', () => setConnectivityStatus(t('online_ready')));
   window.addEventListener('hashchange', applyReviewModeFromUrl);
 }
 
@@ -1719,24 +1809,27 @@ function registerServiceWorker() {
   if (!('serviceWorker' in navigator) || window.location.protocol === 'file:') return;
 
   const register = () => {
-    const hadController = Boolean(navigator.serviceWorker.controller);
     let serviceWorkerRefreshing = false;
 
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!hadController || serviceWorkerRefreshing) return;
+      if (!applyingServiceWorkerUpdate || serviceWorkerRefreshing) return;
       serviceWorkerRefreshing = true;
       window.location.reload();
     });
 
     navigator.serviceWorker.register('service-worker.js')
       .then((registration) => {
+        if (registration.waiting && navigator.serviceWorker.controller) {
+          showUpdateReady(registration.waiting);
+        }
+
         registration.addEventListener('updatefound', () => {
           const worker = registration.installing;
           if (!worker) return;
 
           worker.addEventListener('statechange', () => {
             if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-              setAppStatus(t('update_ready'));
+              showUpdateReady(worker);
             }
           });
         });
@@ -1758,6 +1851,7 @@ async function init() {
   bindLangSwitcher();
   loadLocalState();
   bindEvents();
+  if (navigator.onLine === false) setConnectivityStatus(t('offline_ready'));
   loadCatalog();
   applyReviewModeFromUrl();
   registerServiceWorker();

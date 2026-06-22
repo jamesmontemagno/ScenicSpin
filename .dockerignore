@@ -1,0 +1,15 @@
+.git
+.github
+.squad
+.copilot
+.env
+.env.*
+node_modules
+dist
+test-results
+playwright-report
+.lh-temp
+lh-report.json
+lh-pwa-report.json
+npm-debug.log*
+*.local
