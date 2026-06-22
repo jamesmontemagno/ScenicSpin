@@ -904,6 +904,27 @@ function resetFilter(select, label) {
   select.innerHTML = `<option value="all">${label}</option>`;
 }
 
+function translateSceneryLabel(label) {
+  const keyMap = {
+    Mountains: 'scenery_mountains',
+    'Water/Lakes': 'scenery_water_lakes',
+    Coastal: 'scenery_coastal',
+    Climb: 'scenery_climb',
+    Forest: 'scenery_forest',
+    Countryside: 'scenery_countryside',
+    City: 'scenery_city',
+    'Flat/Easy': 'scenery_flat_easy',
+    Gravel: 'scenery_gravel'
+  };
+  const key = keyMap[label];
+  return key && i18n[key] ? t(key) : label;
+}
+
+function translateIntensityLabel(label) {
+  const key = `intensity_${label.toLowerCase()}`;
+  return i18n[key] || titleCase(label);
+}
+
 function populateFilter(select, values, formatLabel = titleCase) {
   values.forEach((value) => {
     const option = document.createElement('option');
@@ -916,8 +937,8 @@ function populateFilter(select, values, formatLabel = titleCase) {
 function populateFilters() {
   resetFilter(elements.sceneryFilter, t('filter_scenery_any'));
   resetFilter(elements.intensityFilter, t('filter_intensity_any'));
-  populateFilter(elements.sceneryFilter, uniqueSceneryTags(), (value) => value);
-  populateFilter(elements.intensityFilter, uniqueValues('intensity'));
+  populateFilter(elements.sceneryFilter, uniqueSceneryTags(), translateSceneryLabel);
+  populateFilter(elements.intensityFilter, uniqueValues('intensity'), translateIntensityLabel);
 }
 
 function durationMatches(route) {
