@@ -25,8 +25,6 @@
   "hero_metadata": "{{location}} · {{duration}} · {{intensity}} · from routes/catalog.json",
   "filter_eyebrow": "Find a {{activity_noun_singular}}",
   "filter_title": "Search and filter",
-  "filter_collapse_button": "Collapse filters",
-  "filter_expand_button": "Show filters",
   "quick_link_browse": "Browse routes",
   "quick_link_selected": "Selected {{activity_noun_singular}}",
   "quick_link_saved": "Saved {{activity_noun_plural}}",

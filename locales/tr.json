@@ -25,8 +25,6 @@
   "hero_metadata": "{{location}} · {{duration}} · {{intensity}} · routes/catalog.json dosyasından",
   "filter_eyebrow": "Bir {{activity_noun_singular}} bul",
   "filter_title": "Ara ve filtrele",
-  "filter_collapse_button": "Filtreleri gizle",
-  "filter_expand_button": "Filtreleri göster",
   "quick_link_browse": "Rotalara göz at",
   "quick_link_selected": "Seçilen {{activity_noun_singular}}",
   "quick_link_saved": "Kaydedilen {{activity_noun_plural}}",

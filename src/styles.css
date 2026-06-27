@@ -309,26 +309,11 @@ h3 {
 
 .filter-heading {
   display: grid;
-  grid-template-columns: 1fr auto;
   gap: 0.4rem;
-  align-items: start;
 }
 
 .filter-heading h2 {
   font-size: clamp(1.15rem, 2.2vw, 1.65rem);
-}
-
-.filter-heading .eyebrow,
-.filter-heading h2,
-.quick-links {
-  grid-column: 1;
-}
-
-.filter-collapse-button {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: start;
-  min-height: 2.4rem;
 }
 
 .quick-links {
@@ -428,27 +413,6 @@ h3 {
   height: 1.25rem;
   min-height: 1.25rem;
   margin: 0;
-}
-
-.controls-panel.is-collapsed {
-  align-items: end;
-  margin: 0.35rem 0 0.6rem;
-  padding: 0.65rem 0.8rem;
-}
-
-.controls-panel.is-collapsed .quick-links,
-.controls-panel.is-collapsed .filter-row {
-  display: none;
-}
-
-.controls-panel.is-collapsed .filter-heading {
-  align-self: center;
-  gap: 0.15rem;
-}
-
-.controls-panel.is-collapsed .filter-heading h2 {
-  font-size: clamp(1rem, 1.8vw, 1.35rem);
-  line-height: 1.05;
 }
 
 label {

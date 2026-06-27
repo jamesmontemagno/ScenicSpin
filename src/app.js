@@ -183,8 +183,6 @@ const elements = {
   heroSelection: document.querySelector('#heroSelection'),
   heroMetadata: document.querySelector('#heroMetadata'),
   heroRouteButton: document.querySelector('#heroRouteButton'),
-  controlsPanel: document.querySelector('.controls-panel'),
-  filterCollapseButton: document.querySelector('#filterCollapseButton'),
   searchInput: document.querySelector('#searchInput'),
   durationFilter: document.querySelector('#durationFilter'),
   sceneryFilter: document.querySelector('#sceneryFilter'),
@@ -2192,14 +2190,6 @@ function startHeroRoute() {
   selectRoute(state.featuredRoute.id, true);
 }
 
-function setControlsPanelCollapsed(collapsed) {
-  if (!elements.controlsPanel) return;
-  elements.controlsPanel.classList.toggle('is-collapsed', collapsed);
-  if (!elements.filterCollapseButton) return;
-  elements.filterCollapseButton.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-  elements.filterCollapseButton.textContent = collapsed ? t('filter_expand_button') : t('filter_collapse_button');
-}
-
 function bindEvents() {
   elements.heroImage.addEventListener('error', (event) => {
     const fallback = event.currentTarget.dataset.fallback;
@@ -2212,9 +2202,6 @@ function bindEvents() {
     elements.heroImageFallback.hidden = false;
   });
   elements.heroRouteButton.addEventListener('click', startHeroRoute);
-  elements.filterCollapseButton?.addEventListener('click', () => {
-    setControlsPanelCollapsed(!elements.controlsPanel.classList.contains('is-collapsed'));
-  });
 
   elements.searchInput.addEventListener('input', (event) => {
     state.query = event.target.value.trim().toLowerCase();
@@ -2460,7 +2447,6 @@ async function init() {
   bindLangSwitcher();
   loadLocalState();
   bindEvents();
-  setControlsPanelCollapsed(false);
   startDebugSensor();
   renderSensorPanel();
   setupCompactControls();
