@@ -79,6 +79,7 @@
         <div class="filter-heading">
           <p class="eyebrow" data-i18n="filter_eyebrow">Find a {{ACTIVITY_NOUN_SINGULAR}}</p>
           <h2 id="filterTitle" data-i18n="filter_title">Search and filter</h2>
+          <button id="filterCollapseButton" class="secondary-button compact-button filter-collapse-button" type="button" aria-controls="filterControls" aria-expanded="true" data-i18n="filter_collapse_button">Collapse filters</button>
           <div class="quick-links" aria-label="{{ACTIVITY_NOUN_SINGULAR_CAP}} shortcuts">
             <a href="#catalog" data-i18n="quick_link_browse">Browse routes</a>
             <a href="#player" data-i18n="quick_link_selected">Selected {{ACTIVITY_NOUN_SINGULAR}}</a>
@@ -89,7 +90,7 @@
           <span data-i18n="search_label">Search routes</span>
           <input id="searchInput" type="search" placeholder="Try Colorado, canyon, city..." data-i18n-placeholder="search_placeholder" autocomplete="off">
         </label>
-        <div class="filter-row" aria-label="{{ACTIVITY_NOUN_SINGULAR_CAP}} filters">
+        <div id="filterControls" class="filter-row" aria-label="{{ACTIVITY_NOUN_SINGULAR_CAP}} filters">
           <label>
             <span data-i18n="filter_duration_label">Duration</span>
             <select id="durationFilter">

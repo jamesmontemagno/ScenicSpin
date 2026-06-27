@@ -216,17 +216,26 @@ test('PedalScape can simulate a cadence sensor from a debug URL flag', async ({ 
   await expect(page.locator('.selected-layout')).not.toHaveClass(/sensor-fullscreen-modal/);
 });
 
-test('sticky controls collapse into a compact banner while scrolling', async ({ page }) => {
+test('filter banner can be collapsed manually', async ({ page }) => {
   await loadCatalog(page);
   const controlsPanel = page.locator('.controls-panel');
   const expandedBox = await controlsPanel.boundingBox();
   expect(expandedBox).not.toBeNull();
 
-  await page.evaluate(() => window.scrollTo(0, document.querySelector('#catalog').offsetTop + 240));
-  await expect(controlsPanel).toHaveClass(/is-compact/);
-  const compactBox = await controlsPanel.boundingBox();
-  expect(compactBox).not.toBeNull();
-  expect(compactBox.height).toBeLessThan(expandedBox.height * 0.7);
+  await page.locator('#filterCollapseButton').click();
+  await expect(controlsPanel).toHaveClass(/is-collapsed/);
+  await expect(page.locator('#filterControls')).toBeHidden();
+  await expect(page.locator('#filterCollapseButton')).toHaveText('Show filters');
+  await expect(page.locator('#filterCollapseButton')).toHaveAttribute('aria-expanded', 'false');
+
+  const collapsedBox = await controlsPanel.boundingBox();
+  expect(collapsedBox).not.toBeNull();
+  expect(collapsedBox.height).toBeLessThan(expandedBox.height);
+
+  await page.locator('#filterCollapseButton').click();
+  await expect(controlsPanel).not.toHaveClass(/is-collapsed/);
+  await expect(page.locator('#filterControls')).toBeVisible();
+  await expect(page.locator('#filterCollapseButton')).toHaveText('Collapse filters');
 });
 
 test('Simplified Chinese browser locale variants with multiple underscores resolve to zh-CN', async ({ page }) => {

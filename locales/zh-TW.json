@@ -25,6 +25,8 @@
   "hero_metadata": "{{location}} · {{duration}} · {{intensity}} · 來自 routes/catalog.json",
   "filter_eyebrow": "尋找{{activity_noun_singular}}",
   "filter_title": "搜尋與篩選",
+  "filter_collapse_button": "收合篩選",
+  "filter_expand_button": "顯示篩選",
   "quick_link_browse": "瀏覽路線",
   "quick_link_selected": "已選取的{{activity_noun_singular}}",
   "quick_link_saved": "已儲存的{{activity_noun_plural}}路線",
