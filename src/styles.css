@@ -401,6 +401,7 @@ h3 {
 .controls-panel .toggle-field {
   align-self: end;
   min-height: 2.75rem;
+  padding: 0 1rem;
 }
 
 .controls-panel .toggle-field span {
@@ -1092,7 +1093,7 @@ a:focus-visible {
 .player-shell {
   display: grid;
   position: relative;
-  min-height: clamp(20rem, 52vw, 42rem);
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   place-items: center;
   border: 1px solid rgba(255, 255, 255, 0.11);
@@ -1108,15 +1109,21 @@ a:focus-visible {
   border: 0;
 }
 
+.player-shell video {
+  object-fit: contain;
+}
+
 .player-shell:fullscreen {
   width: 100vw;
   height: 100vh;
+  aspect-ratio: auto;
   border-radius: 0;
 }
 
 .player-shell:-webkit-full-screen {
   width: 100vw;
   height: 100vh;
+  aspect-ratio: auto;
   border-radius: 0;
 }
 
@@ -1199,6 +1206,64 @@ a:focus-visible {
   font-size: 0.95rem;
   font-weight: 900;
   line-height: 1.1;
+}
+
+body.sensor-fullscreen-open {
+  overflow: hidden;
+}
+
+.selected-layout.sensor-fullscreen-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
+  gap: 0;
+  align-items: center;
+  width: 100vw;
+  height: 100svh;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  background: #000;
+}
+
+.selected-layout.sensor-fullscreen-modal .player-shell {
+  width: 100%;
+  max-height: calc(100svh - clamp(1.5rem, 4vw, 3rem));
+  border-radius: 1rem;
+  box-shadow: none;
+}
+
+.selected-layout.sensor-fullscreen-modal .route-detail {
+  display: grid;
+  align-content: center;
+  max-height: calc(100svh - clamp(1.5rem, 4vw, 3rem));
+  margin-left: clamp(0.75rem, 2vw, 1.5rem);
+  overflow: auto;
+  border-radius: 1rem;
+  background: rgba(5, 16, 21, 0.96);
+  box-shadow: none;
+}
+
+.selected-layout.sensor-fullscreen-modal #selectedDescription,
+.selected-layout.sensor-fullscreen-modal .metadata-list,
+.selected-layout.sensor-fullscreen-modal .ride-actions {
+  display: none;
+}
+
+.selected-layout.sensor-fullscreen-modal .sensor-panel {
+  margin-top: 0;
+  border-width: 2px;
+  padding: 1.15rem;
+}
+
+.selected-layout.sensor-fullscreen-modal .sensor-summary {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.selected-layout.sensor-fullscreen-modal #sensorCadenceValue {
+  font-size: clamp(3.5rem, 10vw, 7rem);
+  line-height: 0.9;
 }
 
 .player-placeholder {
@@ -1493,6 +1558,22 @@ a:focus-visible {
   .footer-links {
     justify-content: flex-start;
   }
+
+  .selected-layout.sensor-fullscreen-modal {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, auto) minmax(12rem, 0.45fr);
+    align-content: center;
+    overflow: auto;
+  }
+
+  .selected-layout.sensor-fullscreen-modal .route-detail {
+    max-height: none;
+    margin: 0.75rem 0 0;
+  }
+
+  .selected-layout.sensor-fullscreen-modal #sensorCadenceValue {
+    font-size: clamp(3rem, 18vw, 5rem);
+  }
 }
 
 @media (max-width: 640px) {
@@ -1576,7 +1657,8 @@ a:focus-visible {
   display: none;
 }
 
-.pwa-fullscreen #pwaFullscreenClose {
+.pwa-fullscreen #pwaFullscreenClose,
+.sensor-fullscreen-modal #pwaFullscreenClose {
   display: flex;
   align-items: center;
   justify-content: center;
