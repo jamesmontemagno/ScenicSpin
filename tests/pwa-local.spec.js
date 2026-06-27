@@ -216,6 +216,19 @@ test('PedalScape can simulate a cadence sensor from a debug URL flag', async ({ 
   await expect(page.locator('.selected-layout')).not.toHaveClass(/sensor-fullscreen-modal/);
 });
 
+test('sticky controls collapse into a compact banner while scrolling', async ({ page }) => {
+  await loadCatalog(page);
+  const controlsPanel = page.locator('.controls-panel');
+  const expandedBox = await controlsPanel.boundingBox();
+  expect(expandedBox).not.toBeNull();
+
+  await page.evaluate(() => window.scrollTo(0, document.querySelector('#catalog').offsetTop + 240));
+  await expect(controlsPanel).toHaveClass(/is-compact/);
+  const compactBox = await controlsPanel.boundingBox();
+  expect(compactBox).not.toBeNull();
+  expect(compactBox.height).toBeLessThan(expandedBox.height * 0.7);
+});
+
 test('Simplified Chinese browser locale variants with multiple underscores resolve to zh-CN', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'languages', {

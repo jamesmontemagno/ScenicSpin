@@ -415,6 +415,61 @@ h3 {
   margin: 0;
 }
 
+@media (min-width: 901px) {
+  .controls-panel.is-compact {
+    grid-template-columns: minmax(7rem, 0.5fr) minmax(12rem, 0.85fr) minmax(30rem, 2fr);
+    gap: 0.45rem;
+    margin: 0.25rem 0 0.5rem;
+    padding: 0.45rem 0.6rem;
+    align-items: end;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .controls-panel.is-compact .filter-heading {
+    align-self: center;
+    gap: 0;
+  }
+
+  .controls-panel.is-compact .filter-heading .eyebrow,
+  .controls-panel.is-compact .quick-links {
+    display: none;
+  }
+
+  .controls-panel.is-compact .filter-heading h2 {
+    font-size: 0.95rem;
+    line-height: 1.05;
+  }
+
+  .controls-panel.is-compact .search-field,
+  .controls-panel.is-compact .filter-row label {
+    gap: 0.2rem;
+    font-size: 0.68rem;
+  }
+
+  .controls-panel.is-compact .filter-row {
+    grid-column: auto;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .controls-panel.is-compact input,
+  .controls-panel.is-compact select,
+  .controls-panel.is-compact .toggle-field {
+    min-height: 2.2rem;
+    border-radius: 0.75rem;
+    padding: 0 0.7rem;
+    font-size: 0.82rem;
+  }
+
+  .controls-panel.is-compact .toggle-field input {
+    width: 1.05rem;
+    height: 1.05rem;
+    min-height: 1.05rem;
+    padding: 0;
+  }
+}
+
 label {
   display: grid;
   gap: 0.55rem;

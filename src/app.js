@@ -183,6 +183,7 @@ const elements = {
   heroSelection: document.querySelector('#heroSelection'),
   heroMetadata: document.querySelector('#heroMetadata'),
   heroRouteButton: document.querySelector('#heroRouteButton'),
+  controlsPanel: document.querySelector('.controls-panel'),
   searchInput: document.querySelector('#searchInput'),
   durationFilter: document.querySelector('#durationFilter'),
   sceneryFilter: document.querySelector('#sceneryFilter'),
@@ -229,6 +230,7 @@ const elements = {
 let bluetoothDevice = null;
 let cadenceCharacteristic = null;
 let debugSensorTimer = null;
+let controlsPanelCompact = false;
 const cadenceParser = createCadenceParser(defaultCadenceStalenessLimit);
 
 function isDebugSensorRequested() {
@@ -2190,6 +2192,14 @@ function startHeroRoute() {
   selectRoute(state.featuredRoute.id, true);
 }
 
+function updateControlsPanelDensity() {
+  if (!elements.controlsPanel) return;
+  const shouldCompact = window.innerWidth > 900 && (controlsPanelCompact ? window.scrollY > 64 : window.scrollY > 260);
+  if (shouldCompact === controlsPanelCompact) return;
+  controlsPanelCompact = shouldCompact;
+  elements.controlsPanel.classList.toggle('is-compact', controlsPanelCompact);
+}
+
 function bindEvents() {
   elements.heroImage.addEventListener('error', (event) => {
     const fallback = event.currentTarget.dataset.fallback;
@@ -2316,6 +2326,8 @@ function bindEvents() {
   window.addEventListener('offline', () => setConnectivityStatus(t('offline_ready')));
   window.addEventListener('online', () => setConnectivityStatus(t('online_ready')));
   window.addEventListener('hashchange', applyReviewModeFromUrl);
+  window.addEventListener('scroll', updateControlsPanelDensity, { passive: true });
+  window.addEventListener('resize', updateControlsPanelDensity);
 }
 
 async function loadCatalog() {
@@ -2447,6 +2459,7 @@ async function init() {
   bindLangSwitcher();
   loadLocalState();
   bindEvents();
+  updateControlsPanelDensity();
   startDebugSensor();
   renderSensorPanel();
   setupCompactControls();
