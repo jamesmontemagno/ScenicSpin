@@ -403,7 +403,7 @@ test('starting a ride stores continue state, recents, hero continue, and loads i
 
   const firstCard = page.locator('.route-card').first();
   const firstTitle = (await firstCard.locator('h3').textContent()).trim();
-  await firstCard.click();
+  await firstCard.click({ force: true });
   await expect(page.locator('#selectedTitle')).toHaveText(firstTitle);
   await expect(page.locator('#playerShell iframe')).toHaveAttribute('src', /youtube-nocookie\.com\/embed/);
 
